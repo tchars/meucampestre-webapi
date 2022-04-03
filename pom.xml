@@ -8,11 +8,11 @@
         <version>2.6.6</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
-    <groupId>com.example</groupId>
-    <artifactId>SpringJWTRestful</artifactId>
+    <groupId>br.com.meucampestre.webapi</groupId>
+    <artifactId>MeuCampestreBackEnd</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>SpringJWTRestful</name>
-    <description>SpringJWTRestful</description>
+    <name>MeuCampestreBackEnd</name>
+    <description>MeuCampestre - API BackEnd</description>
     <properties>
         <java.version>11</java.version>
     </properties>

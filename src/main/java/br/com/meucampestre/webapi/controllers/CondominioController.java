@@ -9,6 +9,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
+
 @RestController
 @RequestMapping("/api/condominios")
 public class CondominioController {
@@ -22,7 +24,7 @@ public class CondominioController {
 
     // Crio um condomínio
     @PostMapping
-    public ResponseEntity<CondominioDTO> criarCondominio(@RequestBody CondominioDTO condominioDTO) {
+    public ResponseEntity<CondominioDTO> criarCondominio(@Valid @RequestBody CondominioDTO condominioDTO) {
         return new ResponseEntity<>(_condominioService.criarCondominio(condominioDTO), HttpStatus.CREATED);
     }
 

@@ -9,6 +9,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
+
 @RestController
 @RequestMapping("/api/chacaras")
 public class ChacaraController {
@@ -22,7 +24,7 @@ public class ChacaraController {
 
     // Crio uma chácara
     @PostMapping
-    public ResponseEntity<ChacaraDTO> criarChacara(@RequestBody ChacaraDTO chacaraDTO) {
+    public ResponseEntity<ChacaraDTO> criarChacara(@Valid @RequestBody ChacaraDTO chacaraDTO) {
         return new ResponseEntity<>(_chacaraService.criarChacara(chacaraDTO), HttpStatus.CREATED);
     }
 
