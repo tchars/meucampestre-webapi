@@ -1,5 +1,6 @@
 package br.com.meucampestre.webapi.entities;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -28,6 +29,7 @@ public class Condominio {
     @Column(name = "descricao")
     private String descricao;
 
+    @JsonBackReference
     @OneToMany(mappedBy = "condominio", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<Chacara> chacaras = new HashSet<>();
 
