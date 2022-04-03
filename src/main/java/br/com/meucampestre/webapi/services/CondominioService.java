@@ -1,14 +1,15 @@
 package br.com.meucampestre.webapi.services;
 
-import br.com.meucampestre.webapi.dto.Chacara.ChacaraDTO;
+import br.com.meucampestre.webapi.dto.base.PaginacaoBase;
+import br.com.meucampestre.webapi.dto.chacara.ChacaraDTO;
 import br.com.meucampestre.webapi.entities.Chacara;
 import br.com.meucampestre.webapi.entities.Condominio;
 import br.com.meucampestre.webapi.exceptions.RecursoNaoEncontradoException;
 import br.com.meucampestre.webapi.repositories.ICondominioRepository;
-import br.com.meucampestre.webapi.dto.Condominios.CondominioDTO;
-import br.com.meucampestre.webapi.dto.Condominios.PaginacaoCondominio;
+import br.com.meucampestre.webapi.dto.condominio.CondominioDTO;
 import br.com.meucampestre.webapi.repositories.IChacaraRepository;
 import br.com.meucampestre.webapi.services.interfaces.ICondominioService;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -26,10 +27,13 @@ public class CondominioService implements ICondominioService {
 
     private final IChacaraRepository _chacaraRepository;
 
+    private final ModelMapper _modelMapper;
+
     @Autowired
-    public CondominioService(ICondominioRepository condominioRepository, IChacaraRepository chacaraRepository) {
+    public CondominioService(ICondominioRepository condominioRepository, IChacaraRepository chacaraRepository, ModelMapper modelMapper) {
         _condominioRepository = condominioRepository;
         _chacaraRepository = chacaraRepository;
+        _modelMapper = modelMapper;
     }
 
     // Apenas crio um condomínio
@@ -50,7 +54,7 @@ public class CondominioService implements ICondominioService {
 
     // Listo condomínios
     @Override
-    public PaginacaoCondominio buscarTodosCondominios(int numeroDaPagina, int itensPorPagina, String ordenarPelo, String ordenarDeForma) {
+    public PaginacaoBase<CondominioDTO> buscarTodosCondominios(int numeroDaPagina, int itensPorPagina, String ordenarPelo, String ordenarDeForma) {
 
         Sort parametrosOrdenacao = ordenarDeForma.equalsIgnoreCase(Sort.Direction.ASC.name())
                 ? Sort.by(ordenarPelo).ascending()
@@ -67,9 +71,9 @@ public class CondominioService implements ICondominioService {
                 .map(condominio -> mapearDTO(condominio))
                 .collect(Collectors.toList());
 
-        PaginacaoCondominio paginacaoCondominio = new PaginacaoCondominio();
+        PaginacaoBase<CondominioDTO> paginacaoCondominio = new PaginacaoBase<>();
 
-        paginacaoCondominio.setConteudo(listaDeCondominios);
+        paginacaoCondominio.setResultados(listaDeCondominios);
         paginacaoCondominio.setNumeroDaPagina(condominios.getNumber());
         paginacaoCondominio.setItensPorPagina(condominios.getSize());
         paginacaoCondominio.setTotalDeElementos(condominios.getTotalElements());
@@ -82,6 +86,7 @@ public class CondominioService implements ICondominioService {
     // Busco somente um condomínio
     @Override
     public CondominioDTO buscarCondominioPeloId(Long id) {
+
         Condominio condominio = _condominioRepository
                 .findById(id)
                 .orElseThrow(() -> new RecursoNaoEncontradoException("Condominio", "id", id));
@@ -92,36 +97,16 @@ public class CondominioService implements ICondominioService {
     // Converter Entidade -> DTO
     private CondominioDTO mapearDTO(Condominio condominio) {
 
-        CondominioDTO condominioDTO = new CondominioDTO();
-
-        condominioDTO.setId(condominio.getId());
-        condominioDTO.setNomeCondominio(condominio.getNomeCondominio());
-        condominioDTO.setDescricao(condominio.getDescricao());
+        CondominioDTO condominioDTO = _modelMapper.map(condominio, CondominioDTO.class);
 
         List<ChacaraDTO> chacaraDTOList = condominio.getChacaras()
                 .stream()
-                .map(chacara -> mapearChacaraDTO(chacara))
+                .map(chacara -> _modelMapper.map(chacara, ChacaraDTO.class))
                 .collect(Collectors.toList());
 
         condominioDTO.setChacaras(chacaraDTOList);
 
         return condominioDTO;
-    }
-
-    private ChacaraDTO mapearChacaraDTO(Chacara chacara) {
-
-        ChacaraDTO chacaraDTO = new ChacaraDTO();
-
-        chacaraDTO.setId(chacara.getId());
-        chacaraDTO.setTitulo(chacara.getTitulo());
-        chacaraDTO.setIdentificador(chacara.getIdentificador());
-        chacaraDTO.setDescricao(chacara.getDescricao());
-        chacaraDTO.setObservacao(chacara.getObservacao());
-
-        chacaraDTO.setIdCondominio(chacara.getCondominio().getId());
-        chacaraDTO.setCriadoEm(chacara.getCriadoEm());
-
-        return chacaraDTO;
     }
 
     // Converter DTO -> Entidade

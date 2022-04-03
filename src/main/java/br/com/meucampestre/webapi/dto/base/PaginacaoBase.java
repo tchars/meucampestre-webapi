@@ -1,4 +1,4 @@
-package br.com.meucampestre.webapi.dto.Chacara;
+package br.com.meucampestre.webapi.dto.base;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -11,9 +11,9 @@ import java.util.List;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class PaginacaoChacaras {
+public class PaginacaoBase<T> {
 
-    private List<ChacaraDTO> conteudo;
+    private List<T> resultados;
 
     private int numeroDaPagina;
 

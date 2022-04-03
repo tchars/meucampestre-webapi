@@ -1,4 +1,4 @@
-package br.com.meucampestre.webapi.dto.Chacara;
+package br.com.meucampestre.webapi.dto.chacara;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

@@ -1,8 +1,8 @@
 package br.com.meucampestre.webapi.controllers;
 
-import br.com.meucampestre.webapi.dto.Chacara.PaginacaoChacaras;
+import br.com.meucampestre.webapi.dto.base.PaginacaoBase;
 import br.com.meucampestre.webapi.utils.Constantes;
-import br.com.meucampestre.webapi.dto.Chacara.ChacaraDTO;
+import br.com.meucampestre.webapi.dto.chacara.ChacaraDTO;
 import br.com.meucampestre.webapi.services.interfaces.IChacaraService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -28,7 +28,7 @@ public class ChacaraController {
 
     // Listar todas chácaras
     @GetMapping
-    public ResponseEntity<PaginacaoChacaras> buscarTodasChacaras(
+    public ResponseEntity<PaginacaoBase<ChacaraDTO>> buscarTodasChacaras(
             @RequestParam(value = "numeroDaPagina", defaultValue = Constantes.NUMERO_DA_PAGINA_PADRAO, required = false) int numeroDaPagina,
             @RequestParam(value = "itensPorPagina", defaultValue = Constantes.QUANTIDADE_DE_ITENS_POR_PAGINA_PADRAO, required = false) int itensPorPagina,
             @RequestParam(value = "ordenarPelo", defaultValue = Constantes.COLUNA_DE_ORDENACAO_PADRAO, required = false) String ordenarPelo,

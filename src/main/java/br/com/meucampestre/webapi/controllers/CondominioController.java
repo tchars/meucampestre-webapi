@@ -1,9 +1,8 @@
 package br.com.meucampestre.webapi.controllers;
 
-import br.com.meucampestre.webapi.dto.Chacara.ChacaraDTO;
+import br.com.meucampestre.webapi.dto.base.PaginacaoBase;
 import br.com.meucampestre.webapi.utils.Constantes;
-import br.com.meucampestre.webapi.dto.Condominios.CondominioDTO;
-import br.com.meucampestre.webapi.dto.Condominios.PaginacaoCondominio;
+import br.com.meucampestre.webapi.dto.condominio.CondominioDTO;
 import br.com.meucampestre.webapi.services.interfaces.ICondominioService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -23,13 +22,13 @@ public class CondominioController {
 
     // Crio um condomínio
     @PostMapping
-    public ResponseEntity<CondominioDTO> criarChacara(@RequestBody CondominioDTO condominioDTO) {
+    public ResponseEntity<CondominioDTO> criarCondominio(@RequestBody CondominioDTO condominioDTO) {
         return new ResponseEntity<>(_condominioService.criarCondominio(condominioDTO), HttpStatus.CREATED);
     }
 
     // Listar todos condominios
     @GetMapping
-    public ResponseEntity<PaginacaoCondominio> buscarTodosCondominios(
+    public ResponseEntity<PaginacaoBase<CondominioDTO>> buscarTodosCondominios(
             @RequestParam(value = "numeroDaPagina", defaultValue = Constantes.NUMERO_DA_PAGINA_PADRAO, required = false) int numeroDaPagina,
             @RequestParam(value = "itensPorPagina", defaultValue = Constantes.QUANTIDADE_DE_ITENS_POR_PAGINA_PADRAO, required = false) int itensPorPagina,
             @RequestParam(value = "ordenarPelo", defaultValue = Constantes.COLUNA_DE_ORDENACAO_PADRAO, required = false) String ordenarPelo,

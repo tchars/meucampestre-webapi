@@ -1,6 +1,6 @@
-package br.com.meucampestre.webapi.dto.Condominios;
+package br.com.meucampestre.webapi.dto.condominio;
 
-import br.com.meucampestre.webapi.dto.Chacara.ChacaraDTO;
+import br.com.meucampestre.webapi.dto.chacara.ChacaraDTO;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
