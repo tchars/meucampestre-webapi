@@ -1,16 +1,10 @@
-# Local configuration file (sdk path, etc)
-local.properties
-*.properties
-
-**/src/main/**/.properties
-
 HELP.md
 target/
 !.mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
 !**/src/test/**/target/
 
-src/main/resources/application.properties
+./src/main/resources/
 
 ### STS ###
 .apt_generated
