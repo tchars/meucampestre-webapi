@@ -33,6 +33,10 @@ public class Condominio {
     @OneToMany(mappedBy = "condominio", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<Chacara> chacaras = new HashSet<>();
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "usuarios_id", nullable = false)
+    private Usuario usuario;
+
     @Column(name = "criado_em", insertable = false, updatable = false, columnDefinition="TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
     @Basic(optional = false)
     @Temporal(TemporalType.TIMESTAMP)

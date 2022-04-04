@@ -37,7 +37,6 @@ public class Chacara {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "condominio_id", nullable = false)
-    //@Column(name = "condominio")
     private Condominio condominio;
 
     @Column(name = "criado_em", insertable = false, updatable = false, columnDefinition="TIMESTAMP DEFAULT CURRENT_TIMESTAMP")

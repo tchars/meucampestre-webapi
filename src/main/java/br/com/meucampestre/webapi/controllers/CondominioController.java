@@ -1,30 +1,41 @@
 package br.com.meucampestre.webapi.controllers;
 
 import br.com.meucampestre.webapi.dto.base.PaginacaoBase;
+import br.com.meucampestre.webapi.security.JWTTokenProvider;
 import br.com.meucampestre.webapi.utils.Constantes;
 import br.com.meucampestre.webapi.dto.condominio.CondominioDTO;
 import br.com.meucampestre.webapi.services.interfaces.ICondominioService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.security.Principal;
 
 @RestController
 @RequestMapping("/api/condominios")
 public class CondominioController {
 
     private final ICondominioService _condominioService;
+    private final JWTTokenProvider _jwtTokenProvider;
 
     @Autowired
-    public CondominioController(ICondominioService condominioService) {
+    public CondominioController(ICondominioService condominioService, JWTTokenProvider jwtTokenProvider) {
         _condominioService = condominioService;
+        _jwtTokenProvider = jwtTokenProvider;
     }
 
     // Crio um condomínio
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @PostMapping
-    public ResponseEntity<CondominioDTO> criarCondominio(@Valid @RequestBody CondominioDTO condominioDTO) {
+    public ResponseEntity<CondominioDTO> criarCondominio(Principal principal, @Valid @RequestBody CondominioDTO condominioDTO) {
+
+        String email = principal.getName();
+
         return new ResponseEntity<>(_condominioService.criarCondominio(condominioDTO), HttpStatus.CREATED);
     }
 
