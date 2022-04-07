@@ -1,6 +1,6 @@
 package br.com.meucampestre.webapi.exceptions;
 
-import br.com.meucampestre.webapi.dto.exceptions.ErroGenerico;
+import br.com.meucampestre.webapi.dto.exceptions.ErroGenericoDTO;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,18 +19,18 @@ import java.util.Map;
 public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler(RecursoNaoEncontradoException.class)
-    public ResponseEntity<ErroGenerico> tratarErroDeRecursoNaoEncontrado(RecursoNaoEncontradoException exception, WebRequest webRequest)
+    public ResponseEntity<ErroGenericoDTO> tratarErroDeRecursoNaoEncontrado(RecursoNaoEncontradoException exception, WebRequest webRequest)
     {
-        ErroGenerico erroGerado = new ErroGenerico(new Date(), exception.getMessage(), webRequest.getDescription(false));
+        ErroGenericoDTO erroGerado = new ErroGenericoDTO(new Date(), exception.getMessage(), webRequest.getDescription(false));
         return new ResponseEntity<>(erroGerado, HttpStatus.NOT_FOUND);
     }
 
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<ErroGenerico> tratarErroDeServidor(Exception exception, WebRequest webRequest)
+    public ResponseEntity<ErroGenericoDTO> tratarErroDeServidor(Exception exception, WebRequest webRequest)
     {
         String mensagem = exception.getMessage() == null ? "Erro interno do servidor" : exception.getMessage();
 
-        ErroGenerico erroGerado = new ErroGenerico(new Date(), mensagem, webRequest.getDescription(false));
+        ErroGenericoDTO erroGerado = new ErroGenericoDTO(new Date(), mensagem, webRequest.getDescription(false));
         return new ResponseEntity<>(erroGerado, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 

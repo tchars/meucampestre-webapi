@@ -2,13 +2,15 @@ package br.com.meucampestre.webapi.services;
 
 import br.com.meucampestre.webapi.dto.base.PaginacaoBase;
 import br.com.meucampestre.webapi.dto.chacara.ChacaraDTO;
-import br.com.meucampestre.webapi.entities.Chacara;
+import br.com.meucampestre.webapi.dto.usuario.UsuarioDTO;
 import br.com.meucampestre.webapi.entities.Condominio;
+import br.com.meucampestre.webapi.entities.Usuario;
 import br.com.meucampestre.webapi.exceptions.RecursoNaoEncontradoException;
 import br.com.meucampestre.webapi.repositories.ICondominioRepository;
 import br.com.meucampestre.webapi.dto.condominio.CondominioDTO;
 import br.com.meucampestre.webapi.repositories.IChacaraRepository;
 import br.com.meucampestre.webapi.services.interfaces.ICondominioService;
+import br.com.meucampestre.webapi.services.interfaces.IUsuarioService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -24,24 +26,28 @@ import java.util.stream.Collectors;
 public class CondominioService implements ICondominioService {
 
     private final ICondominioRepository _condominioRepository;
+    private final IUsuarioService _usuarioService;
 
     private final IChacaraRepository _chacaraRepository;
 
     private final ModelMapper _modelMapper;
 
     @Autowired
-    public CondominioService(ICondominioRepository condominioRepository, IChacaraRepository chacaraRepository, ModelMapper modelMapper) {
+    public CondominioService(ICondominioRepository condominioRepository, IUsuarioService usuarioService, IChacaraRepository chacaraRepository, ModelMapper modelMapper) {
         _condominioRepository = condominioRepository;
+        _usuarioService = usuarioService;
         _chacaraRepository = chacaraRepository;
         _modelMapper = modelMapper;
     }
 
     // Apenas crio um condomínio
     @Override
-    public CondominioDTO criarCondominio(CondominioDTO condominioDTO) {
+    public CondominioDTO criarCondominio(String email, CondominioDTO condominioDTO) {
 
         // Convertendo de DTO -> Entidade
         Condominio condominio = mapearEntidade(condominioDTO);
+
+        condominio.setUsuario(_usuarioService.buscarUsuarioPorEmail(email));
 
         // Persistimos
         Condominio condominioCriado = _condominioRepository.save(condominio);

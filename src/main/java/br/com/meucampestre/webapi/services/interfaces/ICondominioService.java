@@ -5,7 +5,7 @@ import br.com.meucampestre.webapi.dto.condominio.CondominioDTO;
 
 public interface ICondominioService {
 
-    CondominioDTO criarCondominio(CondominioDTO condominioDTO);
+    CondominioDTO criarCondominio(String email, CondominioDTO condominioDTO);
 
     PaginacaoBase<CondominioDTO> buscarTodosCondominios(int numeroDaPagina, int itensPorPagina, String ordenarPelo, String ordenarDeForma);
 

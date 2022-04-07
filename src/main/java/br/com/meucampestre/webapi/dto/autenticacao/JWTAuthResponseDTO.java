@@ -1,4 +1,4 @@
-package br.com.meucampestre.webapi.security;
+package br.com.meucampestre.webapi.dto.autenticacao;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

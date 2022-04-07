@@ -21,6 +21,7 @@ public class JWTTokenProvider {
     public String gerarToken(Authentication authentication)
     {
         String username = authentication.getName();
+
         Date dataInicial = new Date();
         Date dataExpiracao = new Date(dataInicial.getTime() + jwtExpirationInMs);
 

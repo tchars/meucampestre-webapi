@@ -12,11 +12,12 @@ import java.util.Date;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class ErroGenerico {
+public class ErroGenericoDTO {
 
     private Date dataErro;
 
     private String mensagem;
 
     private String detalhe;
+
 }

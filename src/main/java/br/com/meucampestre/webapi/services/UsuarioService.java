@@ -39,7 +39,6 @@ public class UsuarioService implements IUsuarioService {
         // Verifico se alguém usou o cnpj / cpf
         VerificarSeDocumentoJaFoiUtilizado(usuarioASerCriado.getDocumento());
 
-
         Role roleSindico = _roleRepository.findById(1L).orElse(null);
 
         usuarioASerCriado.getRoles().add(roleSindico);
@@ -47,6 +46,12 @@ public class UsuarioService implements IUsuarioService {
         Usuario usuarioCriado = _usuarioRepository.save(usuarioASerCriado);
 
         return _modelMapper.map(usuarioCriado, UsuarioDTO.class);
+    }
+
+    @Override
+    public Usuario buscarUsuarioPorEmail(String email)
+    {
+        return _usuarioRepository.findByEmail(email).get();
     }
 
     private void VerificarSeDocumentoJaFoiUtilizado(String documento)

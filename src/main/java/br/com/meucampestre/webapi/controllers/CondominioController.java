@@ -30,13 +30,13 @@ public class CondominioController {
     }
 
     // Crio um condomínio
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_SINDICO')")
     @PostMapping
     public ResponseEntity<CondominioDTO> criarCondominio(Principal principal, @Valid @RequestBody CondominioDTO condominioDTO) {
 
         String email = principal.getName();
 
-        return new ResponseEntity<>(_condominioService.criarCondominio(condominioDTO), HttpStatus.CREATED);
+        return new ResponseEntity<>(_condominioService.criarCondominio(email, condominioDTO), HttpStatus.CREATED);
     }
 
     // Listar todos condominios
