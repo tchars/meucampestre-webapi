@@ -7,3 +7,5 @@
 --        (3,'12345678903','condomino@meucampestre.com.br','Condômino','$2a$10$YfqQrjT0.0D86y.j1I9ZT.tkeu0R4waghbgctG.4i1dAdRpyQk8Sa'); --senha:senha
 --
 -- INSERT INTO `usuarios_roles`(`usuario_id`, `role_id`) VALUES ('1','1'), ('2','2'), ('3','3');
+
+INSERT IGNORE INTO `roles` (id, nome) VALUES (1, 'ROLE_ADMIN'), (2, 'ROLE_SINDICO'), (3, 'ROLE_CONSELHEIRO'), (4, 'ROLE_PORTEIRO'), (5, 'ROLE_CONDOMINO');
