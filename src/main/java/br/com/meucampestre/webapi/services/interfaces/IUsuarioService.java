@@ -7,6 +7,6 @@ import org.springframework.stereotype.Service;
 public interface IUsuarioService {
 
     UsuarioDTO criarUsuario(UsuarioDTO usuarioDTO);
-
+    Usuario save(UsuarioDTO user);
     Usuario buscarUsuarioPorEmail(String email);
 }

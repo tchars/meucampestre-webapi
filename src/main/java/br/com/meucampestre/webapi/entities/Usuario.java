@@ -32,9 +32,6 @@ public class Usuario {
 
     private String senha;
 
-    @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL, orphanRemoval = true)
-    private Set<Condominio> condominios = new HashSet<>();
-
     @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JoinTable(name = "usuarios_roles", joinColumns = @JoinColumn(name = "usuario_id", referencedColumnName = "id"),
                                  inverseJoinColumns = @JoinColumn(name = "role_id", referencedColumnName = "id"))

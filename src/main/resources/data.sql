@@ -8,4 +8,4 @@
 --
 -- INSERT INTO `usuarios_roles`(`usuario_id`, `role_id`) VALUES ('1','1'), ('2','2'), ('3','3');
 
-INSERT IGNORE INTO `roles` (id, nome) VALUES (1, 'ROLE_ADMIN'), (2, 'ROLE_SINDICO'), (3, 'ROLE_CONSELHEIRO'), (4, 'ROLE_PORTEIRO'), (5, 'ROLE_CONDOMINO');
+INSERT IGNORE INTO `roles` (id, nome) VALUES (1, 'ADMIN'), (2, 'SINDICO'), (3, 'CONSELHEIRO'), (4, 'PORTEIRO'), (5, 'CONDOMINO');

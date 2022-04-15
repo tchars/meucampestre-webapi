@@ -12,61 +12,84 @@ import br.com.meucampestre.webapi.repositories.IUsuarioRepository;
 import br.com.meucampestre.webapi.services.interfaces.IUsuarioService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-@Service
-public class UsuarioService implements IUsuarioService {
+import java.util.*;
 
-    private final IUsuarioRepository _usuarioRepository;
-    private final IRoleRepository _roleRepository;
-    private final ModelMapper _modelMapper;
+@Service(value = "userService")
+public class UsuarioService implements IUsuarioService, UserDetailsService {
 
     @Autowired
-    public UsuarioService(IUsuarioRepository usuarioRepository, IRoleRepository roleRepository, ModelMapper modelMapper) {
-        _usuarioRepository = usuarioRepository;
-        _roleRepository = roleRepository;
-        _modelMapper = modelMapper;
+    private RoleService roleService;
+
+    @Autowired
+    private ModelMapper _modelMapper;
+
+    @Autowired
+    private IUsuarioRepository userDao;
+
+    @Autowired
+    private BCryptPasswordEncoder bcryptEncoder;
+
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        Optional<Usuario> findByEmail = userDao.findByEmail(username);
+        if(findByEmail.isEmpty()){
+            throw new UsernameNotFoundException("Invalid username or password.");
+        }
+        Usuario user = findByEmail.get();
+        return new org.springframework.security.core.userdetails.User(user.getEmail(), user.getSenha(), getAuthority(user));
+    }
+
+    private Set<SimpleGrantedAuthority> getAuthority(Usuario user) {
+        Set<SimpleGrantedAuthority> authorities = new HashSet<>();
+        user.getRoles().forEach(role -> {
+            authorities.add(new SimpleGrantedAuthority(role.getNome()));
+        });
+        return authorities;
+    }
+
+    public List<Usuario> findAll() {
+        List<Usuario> list = new ArrayList<>();
+        userDao.findAll().iterator().forEachRemaining(list::add);
+        return list;
+    }
+
+    public Usuario findOne(String username) {
+        return userDao.findByEmail(username).get();
+    }
+
+    @Override
+    public Usuario save(UsuarioDTO user) {
+
+        Usuario nUser = _modelMapper.map(user, Usuario.class);
+        nUser.setSenha(bcryptEncoder.encode(user.getSenha()));
+
+        Role role = roleService.findByName("ROLE_SINDICO");
+        Set<Role> roleSet = new HashSet<>();
+        roleSet.add(role);
+
+        if(nUser.getEmail().split("@")[1].equals("admin.com")){
+            role = roleService.findByName("ROLE_ADMIN");
+            roleSet.add(role);
+        }
+
+        nUser.setRoles(roleSet);
+        return userDao.save(nUser);
     }
 
     @Override
     public UsuarioDTO criarUsuario(UsuarioDTO usuarioDTO) {
-
-        Usuario usuarioASerCriado = _modelMapper.map(usuarioDTO, Usuario.class);
-
-        // Verifico se o email já está sendo usado
-        VerificarSeEmailJaExiste(usuarioASerCriado.getEmail());
-
-        // Verifico se alguém usou o cnpj / cpf
-        VerificarSeDocumentoJaFoiUtilizado(usuarioASerCriado.getDocumento());
-
-        Role roleSindico = _roleRepository.findById(1L).orElse(null);
-
-        usuarioASerCriado.getRoles().add(roleSindico);
-
-        Usuario usuarioCriado = _usuarioRepository.save(usuarioASerCriado);
-
-        return _modelMapper.map(usuarioCriado, UsuarioDTO.class);
+        return null;
     }
 
     @Override
-    public Usuario buscarUsuarioPorEmail(String email)
-    {
-        return _usuarioRepository.findByEmail(email).get();
-    }
-
-    private void VerificarSeDocumentoJaFoiUtilizado(String documento)
-    {
-        if(_usuarioRepository.existsByDocumento(documento))
-        {
-            throw new DocumentoJaUtilizadoException(UsuarioService.class.toString(), documento);
-        }
-    }
-
-    private void VerificarSeEmailJaExiste(String email)
-    {
-        if(_usuarioRepository.existsByEmail(email))
-        {
-            throw new EmailJaUtilizadoException(UsuarioService.class.toString(), email);
-        }
+    public Usuario buscarUsuarioPorEmail(String email) {
+        return null;
     }
 }
