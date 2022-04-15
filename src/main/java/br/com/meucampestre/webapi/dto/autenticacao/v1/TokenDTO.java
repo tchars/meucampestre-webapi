@@ -1,16 +1,15 @@
-package br.com.meucampestre.webapi.dto.autenticacao;
+package br.com.meucampestre.webapi.dto.autenticacao.v1;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+@AllArgsConstructor
+@NoArgsConstructor
 @Getter
 @Setter
-@NoArgsConstructor
-@AllArgsConstructor
-public class LoginDTO {
-
+public class TokenDTO {
     private String email;
-    private String senha;
+    private String token;
 }
