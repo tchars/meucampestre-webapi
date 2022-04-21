@@ -105,14 +105,6 @@ public class UsuarioService implements IUsuarioService, UserDetailsService {
 
 
 
-
-
-
-
-
-
-
-
     // Sem definição
     @Override
     public Usuario buscarUsuarioPeloDocumento(String documento) {

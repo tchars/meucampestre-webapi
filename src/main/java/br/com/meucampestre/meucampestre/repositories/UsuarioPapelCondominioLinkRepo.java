@@ -25,7 +25,6 @@ public interface UsuarioPapelCondominioLinkRepo extends JpaRepository<UsuarioPap
             "WHERE upcl.usuario_id = ?1", nativeQuery = true)
     Collection<UsuarioPapelCondominioLink> buscarPorUsuario(Long usuario_id);
 
-
     @Modifying
     @Query(value = "DELETE FROM `usuario_papel_condominio_link` WHERE usuario_id = ?1 AND condominio_id = ?2", nativeQuery = true)
     @Transactional

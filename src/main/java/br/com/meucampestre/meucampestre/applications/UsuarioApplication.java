@@ -87,6 +87,10 @@ public class UsuarioApplication {
     {
         Usuario usuarioAntigo = _usuarioService.buscarUsuarioPeloDocumento(request.getDocumento());
 
+        if (usuarioAntigo == null) {
+            throw new RuntimeException("Usuário não existe");
+        }
+
         Collection<Papel> papeis = new ArrayList<>();
         for (String papel : request.getPapeis())
         {
@@ -112,6 +116,19 @@ public class UsuarioApplication {
 
         return new AtualizarUsuarioResponse(usuarioAntigo.getNome(), usuarioAntigo.getDocumento(),
                 request.getPapeis());
+    }
+
+    // TODO: Usuários sem condomínios devem ser apagados
+    public void removerUsuario(Long idCondominio, String documentoUsuario)
+    {
+        Usuario usr = _usuarioService.buscarUsuarioPeloDocumento(documentoUsuario);
+
+        if (usr == null) {
+            throw new RuntimeException("Usuário não encontrado");
+        }
+
+        _usuarioPapelCondominioLinkRepo.apagarTodasPermissoesDoUsuarioAoCondominio(usr.getId(),
+                 idCondominio);
     }
 
     private CriarUsuarioResponse mapParaResponse(Usuario usuario, Condominio condominio)

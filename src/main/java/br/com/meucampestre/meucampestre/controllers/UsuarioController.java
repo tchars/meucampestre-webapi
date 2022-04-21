@@ -111,4 +111,27 @@ public class UsuarioController {
 
         return ResponseEntity.ok().body(usuarioAtualizado);
     }
+
+    @DeleteMapping("/{idCondominio}/usuario/{documentoUsuario}")
+    public ResponseEntity<?> removerUsuario(@PathVariable Long idCondominio,
+                                            @PathVariable String documentoUsuario)
+    {
+        try {
+            String usuarioDoToken = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+            _autenticacaoApplication.autenticarUsuario(usuarioDoToken, idCondominio,
+                    TiposDePapeis.SINDICO);
+
+
+            _usuarioApplication.removerUsuario(idCondominio, documentoUsuario);
+
+            return ResponseEntity.accepted().build();
+
+        }
+        catch (Exception ex)
+        {
+            return ResponseEntity.badRequest().body(new GenericResponse(HttpStatus.BAD_REQUEST.value(),
+                    ex.getMessage()));
+        }
+    }
 }
