@@ -16,6 +16,11 @@ public interface UsuarioPapelCondominioLinkRepo extends JpaRepository<UsuarioPap
                                                                  Long papel_id);
 
     @Query(value = "SELECT * FROM usuario_papel_condominio_link AS upcl " +
+            "WHERE upcl.condominio_id = ?1", nativeQuery = true)
+    Collection<UsuarioPapelCondominioLink> buscarTodosUsuariosDeUmCondominio(Long condominio_id);
+
+
+    @Query(value = "SELECT * FROM usuario_papel_condominio_link AS upcl " +
             "WHERE upcl.usuario_id = ?1", nativeQuery = true)
     Collection<UsuarioPapelCondominioLink> buscarPorUsuario(Long usuario_id);
 }

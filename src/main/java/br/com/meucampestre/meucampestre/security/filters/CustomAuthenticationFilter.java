@@ -51,16 +51,6 @@ public class CustomAuthenticationFilter extends UsernamePasswordAuthenticationFi
     public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response)
             throws AuthenticationException
     {
-//        String documento = request.getParameter("documento");
-//        String senha = request.getParameter("senha");
-//
-//        log.info("Autenticando usuário : {} - senha: {}", documento, senha);
-//
-//        UsernamePasswordAuthenticationToken authenticationToken =
-//                new UsernamePasswordAuthenticationToken(documento, senha);
-//
-//        return _authenticationManager.authenticate(authenticationToken);
-
         if (!request.getMethod().equals("POST"))
         {
             throw new AuthenticationServiceException("Método não suportado: " + request.getMethod());

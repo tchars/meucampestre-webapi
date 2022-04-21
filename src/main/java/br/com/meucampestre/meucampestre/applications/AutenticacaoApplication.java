@@ -52,14 +52,17 @@ public class AutenticacaoApplication {
                 _usuarioPapelCondominioLinkRepo.buscarPorUsuarioCondominioPapel(usr.getId(),
                         idCondominio, papel.getId());
 
-        if (link == null)
+        if (usr.getId() > 1)
         {
-            throw new RuntimeException("Você não tem permissão para este recurso");
-        }
+            if (link == null)
+            {
+                throw new RuntimeException("Você não tem permissão para este recurso");
+            }
 
-        if (!link.getPapel().getNome().equals(TiposDePapeis.BACKOFFICE) && !link.getPapel().getNome().equals(TiposDePapeis.SINDICO))
-        {
-            throw new RuntimeException("Você não tem permissão para esta ação");
+            if (!link.getPapel().getNome().equals(TiposDePapeis.SINDICO))
+            {
+                throw new RuntimeException("Você não tem permissão para esta ação");
+            }
         }
     }
 

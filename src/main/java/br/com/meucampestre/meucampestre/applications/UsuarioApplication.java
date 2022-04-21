@@ -2,7 +2,6 @@ package br.com.meucampestre.meucampestre.applications;
 
 import br.com.meucampestre.meucampestre.apimodels.usuarios.CriarUsuarioRequest;
 import br.com.meucampestre.meucampestre.apimodels.usuarios.CriarUsuarioResponse;
-import br.com.meucampestre.meucampestre.domain.constants.TiposDePapeis;
 import br.com.meucampestre.meucampestre.domain.models.Condominio;
 import br.com.meucampestre.meucampestre.domain.models.Papel;
 import br.com.meucampestre.meucampestre.domain.models.Usuario;
@@ -25,14 +24,9 @@ import java.util.stream.Collectors;
 public class UsuarioApplication {
 
     private final IUsuarioService _usuarioService;
-    private final PasswordEncoder _passwordEncoder;
     private final IPapelService _papelService;
     private final ICondominioService _condominioService;
     private final UsuarioPapelCondominioLinkRepo _usuarioPapelCondominioLinkRepo;
-
-    public List<Usuario> buscarTodosUsuarios() {
-        return _usuarioService.buscarUsuarios();
-    }
 
     public CriarUsuarioResponse criarUsuario(Long idCondominio,
                                              CriarUsuarioRequest request)
@@ -55,7 +49,8 @@ public class UsuarioApplication {
         if (usuarioASerCriado == null)
         {
             // Cadastro
-            usuarioASerCriado = _usuarioService.salvarUsuario(cadastrarNovoUsuario(request, papelDesejado));
+            usuarioASerCriado = _usuarioService.salvarUsuario(
+                    mapearDadosParaNovoUsuario(request, papelDesejado));
 
             _usuarioPapelCondominioLinkRepo.save(new UsuarioPapelCondominioLink(null,
                     usuarioASerCriado, condominio, papelDesejado));
@@ -73,7 +68,8 @@ public class UsuarioApplication {
         // Se ele não tiver relação entre usuário - condomínio - role pedida, posso criar
         if (usuarioJaExisteComARoleNesteCondominio == null)
         {
-            _usuarioPapelCondominioLinkRepo.save(new UsuarioPapelCondominioLink(null,
+            UsuarioPapelCondominioLink usuario =
+                    _usuarioPapelCondominioLinkRepo.save(new UsuarioPapelCondominioLink(null,
                     usuarioASerCriado, condominio, papelDesejado));
 
             return mapParaResponse(usuarioASerCriado, condominio);
@@ -81,6 +77,19 @@ public class UsuarioApplication {
 
         throw new RuntimeException("Usuário já possui cadastro neste condomínio com esta role");
     }
+
+
+//    public Object atualizarUsuario() {
+//
+//        Usuario usuarioASerCriado =
+//                _usuarioService.buscarUsuarioPeloDocumento(request.getDocumento());
+//
+//        Papel papelDesejado = _papelService.buscarPapelPeloNome(request.getPapel());
+//
+//        Condominio condominio = _condominioService.buscarCondominio(idCondominio);
+//
+//    }
+
 
     private CriarUsuarioResponse mapParaResponse(Usuario usuario, Condominio condominio)
     {
@@ -92,8 +101,8 @@ public class UsuarioApplication {
         );
     }
 
-    private Usuario cadastrarNovoUsuario(CriarUsuarioRequest request,
-                                         Papel papel)
+    private Usuario mapearDadosParaNovoUsuario(CriarUsuarioRequest request,
+                                               Papel papel)
     {
         Usuario usuario = new Usuario(null,
                 request.getNome(),

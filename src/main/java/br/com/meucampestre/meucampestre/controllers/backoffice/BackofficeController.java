@@ -1,5 +1,6 @@
 package br.com.meucampestre.meucampestre.controllers.backoffice;
 
+import br.com.meucampestre.meucampestre.apimodels.condominio.BuscarTodosUsuariosDeUmCondominioResponse;
 import br.com.meucampestre.meucampestre.apimodels.condominio.CriarCondominioRequest;
 import br.com.meucampestre.meucampestre.apimodels.condominio.CriarCondominioResponse;
 import br.com.meucampestre.meucampestre.apimodels.usuarios.CriarUsuarioRequest;
@@ -9,16 +10,13 @@ import br.com.meucampestre.meucampestre.applications.CondominioApplication;
 import br.com.meucampestre.meucampestre.applications.UsuarioApplication;
 import br.com.meucampestre.meucampestre.domain.constants.Rotas;
 import br.com.meucampestre.meucampestre.domain.models.Condominio;
-import br.com.meucampestre.meucampestre.domain.models.Usuario;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
-import java.util.Collection;
 import java.util.List;
 
 @RestController
@@ -57,7 +55,7 @@ public class BackofficeController {
 
     // Contexto: USUARIO
     @GetMapping("/condominios/{idCondominio}/usuarios")
-    public ResponseEntity<Collection<Usuario>> buscarTodosUsuarios(@PathVariable Long idCondominio)
+    public ResponseEntity<BuscarTodosUsuariosDeUmCondominioResponse> buscarTodosUsuarios(@PathVariable Long idCondominio)
     {
         return ResponseEntity.ok().body(_condominioApplication.buscarTodosUsuariosDeUmCondominio(idCondominio));
     }

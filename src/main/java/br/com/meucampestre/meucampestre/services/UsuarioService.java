@@ -1,5 +1,6 @@
 package br.com.meucampestre.meucampestre.services;
 
+import br.com.meucampestre.meucampestre.apimodels.condominio.partials.MoradorDoCondominio;
 import br.com.meucampestre.meucampestre.apimodels.usuarios.BuscarDadosDoPerfilResponse;
 import br.com.meucampestre.meucampestre.apimodels.usuarios.partials.CondominioResponse;
 import br.com.meucampestre.meucampestre.domain.models.Condominio;
@@ -49,12 +50,47 @@ public class UsuarioService implements IUsuarioService, UserDetailsService {
 
         for (UsuarioPapelCondominioLink item : link)
         {
-            CondominioResponse condo = new CondominioResponse(item.getCondominio().getId(),
-                    item.getCondominio().getNome(),
-                    item.getCondominio().getDocumento(),
-                    item.getPapel().getNome());
+            Collection<String> pp = new ArrayList<>();
 
-            response.getCondominios().add(condo);
+            if (response.getCondominios().size() < 1)
+            {
+                pp.add(item.getPapel().getNome());
+
+                response.getCondominios().add(new CondominioResponse(
+                        item.getId(),
+                        item.getCondominio().getNome(),
+                        item.getCondominio().getDocumento(),
+                        pp));
+            }
+            else
+            {
+                boolean devoAdicionar = true;
+
+                for (CondominioResponse condominio : response.getCondominios())
+                {
+                    if (condominio.getDocumento().equals(item.getCondominio().getDocumento()))
+                    {
+                        condominio.getTipoDePerfil().add(item.getPapel().getNome());
+                        devoAdicionar = false;
+                        break;
+                    }
+                }
+
+                if (devoAdicionar)
+                {
+                    Collection<String> papeisConcat = new ArrayList<>();
+                    papeisConcat.add(item.getPapel().getNome());
+
+                    response.getCondominios().add(
+                        new CondominioResponse(
+                            item.getCondominio().getId(),
+                            item.getCondominio().getNome(),
+                            item.getCondominio().getDocumento(),
+                            papeisConcat
+                        )
+                    );
+                }
+            }
         }
 
         response.setId(usuario.getId());
