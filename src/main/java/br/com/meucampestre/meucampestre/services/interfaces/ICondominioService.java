@@ -15,4 +15,5 @@ public interface ICondominioService {
 
     // Contexto Usuários
     Collection<Usuario> buscarTodosUsuariosDeUmCondominio(Long idCondominio);
+
 }

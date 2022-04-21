@@ -158,6 +158,4 @@ public class CustomAuthenticationFilter extends UsernamePasswordAuthenticationFi
 
         new ObjectMapper().writeValue(response.getOutputStream(), tokens);
     }
-
-
 }

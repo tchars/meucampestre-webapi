@@ -31,14 +31,14 @@ public class MeuCampestreApplication {
 		return args -> {
 			usuarioService.salvarPapel(new Papel(null, TiposDePapeis.BACKOFFICE, null, null));
 			usuarioService.salvarPapel(new Papel(null, TiposDePapeis.CONDOMINIO, null, null));
-			usuarioService.salvarPapel(new Papel(null, TiposDePapeis.SINDICO, null, null));
-			usuarioService.salvarPapel(new Papel(null, TiposDePapeis.CONSELHEIRO, null, null));
-			usuarioService.salvarPapel(new Papel(null, TiposDePapeis.PORTEIRO, null, null));
+			usuarioService.salvarPapel(new Papel(null, TiposDePapeis.SINDICO,null,null));
+			usuarioService.salvarPapel(new Papel(null, TiposDePapeis.CONSELHEIRO, null,null));
+			usuarioService.salvarPapel(new Papel(null, TiposDePapeis.PORTEIRO, null,null));
 			usuarioService.salvarPapel(new Papel(null, TiposDePapeis.MORADOR, null, null));
 
 			usuarioService.salvarUsuario(
 					new Usuario(null, "Backoffice MeuCampestre", "123456", "00011122233",
-							new ArrayList<>(), null, null)
+							null,  null,null)
 			);
 
 			usuarioService.adicionarPapelAoUsuario("00011122233", TiposDePapeis.BACKOFFICE);

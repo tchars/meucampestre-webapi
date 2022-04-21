@@ -8,6 +8,8 @@ import br.com.meucampestre.meucampestre.domain.constants.TiposDePapeis;
 import br.com.meucampestre.meucampestre.domain.models.Condominio;
 import br.com.meucampestre.meucampestre.domain.models.Papel;
 import br.com.meucampestre.meucampestre.domain.models.Usuario;
+import br.com.meucampestre.meucampestre.domain.models.UsuarioPapelCondominioLink;
+import br.com.meucampestre.meucampestre.repositories.UsuarioPapelCondominioLinkRepo;
 import br.com.meucampestre.meucampestre.services.interfaces.ICondominioService;
 import br.com.meucampestre.meucampestre.services.interfaces.IPapelService;
 import br.com.meucampestre.meucampestre.services.interfaces.IUsuarioService;
@@ -26,6 +28,7 @@ public class CondominioApplication {
     private final ICondominioService _condominioService;
     private final IPapelService _papelService;
     private final PasswordEncoder _passwordEncoder;
+    private final UsuarioPapelCondominioLinkRepo _usuarioPapelCondominioLinkRepo;
 
     // Contexto - CONDOMÍNIO
     public CriarCondominioResponse criarCondominio(CriarCondominioRequest request)
@@ -66,12 +69,10 @@ public class CondominioApplication {
                                              CriarUsuarioRequest request)
     {
         Usuario usuario = _usuarioService.buscarUsuarioPeloDocumento(request.getDocumento());
-        Papel papel = _papelService.buscarPapelPeloNome(request.getPapel());
+        Papel papelDesejado = _papelService.buscarPapelPeloNome(request.getPapel());
         Condominio condominio = _condominioService.buscarCondominio(idCondominio);
 
-        Boolean usuarioExisteNesteCondominio = false;
-
-        if (papel == null) {
+        if (papelDesejado == null) {
             throw new RuntimeException("Permissão/Role não encontrada");
         }
 
@@ -79,68 +80,60 @@ public class CondominioApplication {
             throw new RuntimeException("Condomínio não encontrado");
         }
 
-        if (usuario != null)
+        // Usuário não existe no sistema
+        if (usuario == null)
         {
-            for (Usuario usuarioItem : condominio.getUsuarios())
-            {
-                // Usuário existe neste condomínio?
-                if (usuarioItem.getDocumento().equals(request.getDocumento()))
-                {
-                    // usuario Ja Possui Este Papel?
-                    for (Papel papelItem : usuarioItem.getPapeis())
-                    {
-                        if (papelItem.getNome().equals(papel.getNome()))
-                        {
-                            throw new RuntimeException("Usuário já existe neste condominio com esta role");
-                        }
-                    }
+            // Cadastro
+            usuario = _usuarioService.salvarUsuario(cadastrarNovoUsuario(request, papelDesejado));
 
-                    usuarioExisteNesteCondominio = true;
+            _usuarioPapelCondominioLinkRepo.save(new UsuarioPapelCondominioLink(null,
+                    usuario, condominio, papelDesejado));
 
-                    break;
-                }
-            }
+            return mapParaResponse(usuario, condominio);
         }
 
-        // Salvando o usuário
-        if (usuarioExisteNesteCondominio)
-        {
-            // Se ele já existe neste condomínio, então apenas adiciono uma role
-            usuario.getPapeis().add(papel);
-        }
-        else
-        {
-            usuario = new Usuario(null, request.getNome(), request.getSenha(),
-                    request.getDocumento(), new ArrayList<>(), new Date(System.currentTimeMillis()),
-                    new Date(System.currentTimeMillis()));
+        // Se o usuário já existe no sistema
+        // verifico se ele já existe no condomínio
+        UsuarioPapelCondominioLink usuarioJaExisteComARoleNesteCondominio =
+                _usuarioPapelCondominioLinkRepo
+                        .buscarPorUsuarioCondominioPapel(usuario.getId(), condominio.getId(),
+                                papelDesejado.getId());
 
-            usuario.getPapeis().add(papel);
-        }
+        // Se ele não tiver relação entre usuário - condomínio - role pedida, posso criar
+        if (usuarioJaExisteComARoleNesteCondominio == null)
+        {
+            _usuarioPapelCondominioLinkRepo.save(new UsuarioPapelCondominioLink(null,
+                    usuario, condominio, papelDesejado));
 
-        Usuario usuarioCriado;
-        if (usuarioExisteNesteCondominio)
-        {
-            // Se ele já existir não preciso recriptografar a senha
-            usuarioCriado = _usuarioService.atualizarUsuario(usuario);
-        }
-        else
-        {
-            usuarioCriado = _usuarioService.salvarUsuario(usuario);
+            return mapParaResponse(usuario, condominio);
         }
 
-        // Atribuindo ele a um condomínio se ele não tiver um
-        if (!usuarioExisteNesteCondominio)
-        {
-            condominio = _condominioService.buscarCondominio(idCondominio);
-            condominio.getUsuarios().add(usuarioCriado);
-            _condominioService.salvarCondominio(condominio);
-        }
+        throw new RuntimeException("Usuário já possui cadastro neste condomínio com esta role");
+    }
 
-        return new CriarUsuarioResponse(usuarioCriado.getId(),
-                usuarioCriado.getNome(),
-                usuarioCriado.getDocumento(),
-                usuarioCriado.getPapeis().stream().collect(Collectors.toList()),
+    private CriarUsuarioResponse mapParaResponse(Usuario usuario, Condominio condominio)
+    {
+        return new CriarUsuarioResponse(usuario.getId(),
+                usuario.getNome(),
+                usuario.getDocumento(),
+                usuario.getPapeis().stream().collect(Collectors.toList()),
                 condominio.getId()
         );
+    }
+
+    private Usuario cadastrarNovoUsuario(CriarUsuarioRequest request,
+                                      Papel papel)
+    {
+        Usuario usuario = new Usuario(null,
+                request.getNome(),
+                request.getSenha(),
+                request.getDocumento(),
+                new ArrayList<>(),
+                new Date(System.currentTimeMillis()),
+                new Date(System.currentTimeMillis()));
+
+        usuario.getPapeis().add(papel);
+
+        return usuario;
     }
 }

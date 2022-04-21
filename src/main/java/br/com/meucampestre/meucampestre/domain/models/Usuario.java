@@ -22,7 +22,7 @@ public class Usuario {
     private String senha;
     private String documento;
 
-    @ManyToMany(fetch = FetchType.EAGER)
+    @ManyToMany(fetch = FetchType.EAGER, cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     private Collection<Papel> papeis = new ArrayList<>();
 
     @Column(columnDefinition="TIMESTAMP DEFAULT CURRENT_TIMESTAMP")

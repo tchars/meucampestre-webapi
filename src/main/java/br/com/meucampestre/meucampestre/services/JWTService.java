@@ -86,8 +86,8 @@ public class JWTService {
         }
     }
 
-    public String obterDocumentoPeloToken(String token) {
-
+    public String obterDocumentoPeloToken(String token)
+    {
         Algorithm algorithm = Algorithm.HMAC256("segredo".getBytes());
         JWTVerifier verifier = JWT.require(algorithm).build();
         DecodedJWT decodedJWT = verifier.verify(token);

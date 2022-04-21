@@ -32,11 +32,11 @@ public class Condominio {
     @OneToOne
     private Papel papel;
 
-    @OneToMany()
+    @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     @LazyCollection(LazyCollectionOption.FALSE)
     private Collection<Usuario> usuarios = new ArrayList<>();
 
-    @OneToMany()
+    @OneToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     @LazyCollection(LazyCollectionOption.FALSE)
     private Collection<Unidade> unidades = new ArrayList<>();
 

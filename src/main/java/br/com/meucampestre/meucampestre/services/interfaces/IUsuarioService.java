@@ -7,15 +7,17 @@ import java.util.List;
 
 public interface IUsuarioService {
 
+    Object buscarDadosDoUsuarioPeloToken(String token);
+
+    Usuario buscarUsuarioPeloDocumento(String documento);
+
+    List<Usuario> buscarUsuarios();
+
     Usuario salvarUsuario(Usuario usuario);
 
     Papel salvarPapel(Papel papel);
 
     void adicionarPapelAoUsuario(String documento, String nomePapel);
-
-    Usuario buscarUsuarioPeloDocumento(String documento);
-
-    List<Usuario> buscarUsuarios();
 
     Usuario atualizarUsuario(Usuario usuario);
 }

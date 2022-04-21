@@ -1,8 +1,14 @@
 package br.com.meucampestre.meucampestre.services;
 
+import br.com.meucampestre.meucampestre.apimodels.usuarios.BuscarDadosDoPerfilResponse;
+import br.com.meucampestre.meucampestre.apimodels.usuarios.partials.CondominioResponse;
+import br.com.meucampestre.meucampestre.domain.models.Condominio;
 import br.com.meucampestre.meucampestre.domain.models.Papel;
 import br.com.meucampestre.meucampestre.domain.models.Usuario;
+import br.com.meucampestre.meucampestre.domain.models.UsuarioPapelCondominioLink;
+import br.com.meucampestre.meucampestre.repositories.CondominioRepo;
 import br.com.meucampestre.meucampestre.repositories.PapelRepo;
+import br.com.meucampestre.meucampestre.repositories.UsuarioPapelCondominioLinkRepo;
 import br.com.meucampestre.meucampestre.repositories.UsuarioRepo;
 import br.com.meucampestre.meucampestre.services.interfaces.IUsuarioService;
 import lombok.RequiredArgsConstructor;
@@ -27,7 +33,61 @@ public class UsuarioService implements IUsuarioService, UserDetailsService {
 
     private final UsuarioRepo _usuarioRepo;
     private final PapelRepo _papelRepo;
+    private final CondominioRepo _condominioRepo;
+    private final UsuarioPapelCondominioLinkRepo _usuarioPapelCondominioLinkRepo;
     private final PasswordEncoder _passwordEncoder;
+
+    @Override
+    public BuscarDadosDoPerfilResponse buscarDadosDoUsuarioPeloToken(String documento)
+    {
+        Usuario usuario = _usuarioRepo.findByDocumento(documento);
+
+        Collection<UsuarioPapelCondominioLink> link =
+                _usuarioPapelCondominioLinkRepo.buscarPorUsuario(usuario.getId());
+
+        BuscarDadosDoPerfilResponse response = new BuscarDadosDoPerfilResponse();
+
+        for (UsuarioPapelCondominioLink item : link)
+        {
+            CondominioResponse condo = new CondominioResponse(item.getCondominio().getId(),
+                    item.getCondominio().getNome(),
+                    item.getCondominio().getDocumento(),
+                    item.getPapel().getNome());
+
+            response.getCondominios().add(condo);
+        }
+
+        response.setId(usuario.getId());
+        response.setNome(usuario.getNome());
+        response.setDocumento(usuario.getDocumento());
+
+        return response;
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    // Sem edfinição
+    @Override
+    public Usuario buscarUsuarioPeloDocumento(String documento) {
+        return _usuarioRepo.findByDocumento(documento);
+    }
+
+    @Override
+    public List<Usuario> buscarUsuarios() {
+        return _usuarioRepo.findAll();
+    }
+
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
@@ -81,15 +141,5 @@ public class UsuarioService implements IUsuarioService, UserDetailsService {
         Usuario usuario = _usuarioRepo.findByDocumento(documento);
         Papel papel = _papelRepo.findByNome(nomePapel);
         usuario.getPapeis().add(papel);
-    }
-
-    @Override
-    public Usuario buscarUsuarioPeloDocumento(String documento) {
-        return _usuarioRepo.findByDocumento(documento);
-    }
-
-    @Override
-    public List<Usuario> buscarUsuarios() {
-        return _usuarioRepo.findAll();
     }
 }
