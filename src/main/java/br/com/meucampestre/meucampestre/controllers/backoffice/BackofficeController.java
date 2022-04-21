@@ -4,13 +4,16 @@ import br.com.meucampestre.meucampestre.apimodels.condominio.CriarCondominioRequ
 import br.com.meucampestre.meucampestre.apimodels.condominio.CriarCondominioResponse;
 import br.com.meucampestre.meucampestre.apimodels.usuarios.CriarUsuarioRequest;
 import br.com.meucampestre.meucampestre.apimodels.usuarios.CriarUsuarioResponse;
+import br.com.meucampestre.meucampestre.apimodels.usuarios.partials.GenericResponse;
 import br.com.meucampestre.meucampestre.applications.CondominioApplication;
 import br.com.meucampestre.meucampestre.applications.UsuarioApplication;
 import br.com.meucampestre.meucampestre.domain.constants.Rotas;
 import br.com.meucampestre.meucampestre.domain.models.Condominio;
 import br.com.meucampestre.meucampestre.domain.models.Usuario;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
@@ -24,6 +27,7 @@ import java.util.List;
 public class BackofficeController {
 
     private final CondominioApplication _condominioApplication;
+    private final UsuarioApplication _usuarioApplication;
 
     // CONTEXTO: CONDOMINIO
     @GetMapping("/condominios")
@@ -51,10 +55,6 @@ public class BackofficeController {
         return ResponseEntity.created(uri).body(condominioCriado);
     }
 
-
-
-
-
     // Contexto: USUARIO
     @GetMapping("/condominios/{idCondominio}/usuarios")
     public ResponseEntity<Collection<Usuario>> buscarTodosUsuarios(@PathVariable Long idCondominio)
@@ -63,19 +63,28 @@ public class BackofficeController {
     }
 
     @PostMapping("/condominios/{idCondominio}/usuarios")
-    public ResponseEntity<CriarUsuarioResponse> salvarUsuario(@PathVariable Long idCondominio,
+    public ResponseEntity<?> salvarUsuario(@PathVariable Long idCondominio,
                                                               @RequestBody CriarUsuarioRequest request)
     {
-        CriarUsuarioResponse usuarioCriado = _condominioApplication.criarUsuario(idCondominio,
-                request);
+        try
+        {
+            CriarUsuarioResponse usuarioCriado = _usuarioApplication.criarUsuario(idCondominio,
+                    request);
 
-        URI uri = URI.create(
-                ServletUriComponentsBuilder
-                        .fromCurrentContextPath()
-                        .path(Rotas.URL_PREFIX_V1 + "/condominios/usuarios/" + usuarioCriado.getId()
-                        )
-                .toUriString());
+            URI uri = URI.create(
+                    ServletUriComponentsBuilder
+                            .fromCurrentContextPath()
+                            .path(Rotas.URL_PREFIX_V1 + "/condominios/usuarios/" + usuarioCriado.getId()
+                            )
+                            .toUriString());
 
-        return ResponseEntity.created(uri).body(usuarioCriado);
+            return ResponseEntity.created(uri).body(usuarioCriado);
+        }
+        catch (Exception e)
+        {
+            return ResponseEntity.badRequest().body(
+                    new GenericResponse(HttpStatus.BAD_REQUEST.value(), e.getMessage())
+            );
+        }
     }
 }
