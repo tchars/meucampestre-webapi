@@ -34,4 +34,8 @@ public interface UsuarioPapelCondominioLinkRepo extends JpaRepository<UsuarioPap
     @Query(value = "INSERT INTO `usuario_papel_condominio_link`(id, usuario_id, condominio_id, papel_id) VALUES (null, ?1 , ?2, ?3)", nativeQuery = true)
     @Transactional
     void inserirPermissoesDoUsuarioAoCondominio(Long usuario_id, Long condominio_id, Long papel_id);
+
+    @Query(value = "SELECT * FROM usuario_papel_condominio_link AS upcl " +
+            "WHERE upcl.usuario_id = ?1 AND upcl.condominio_id = ?2", nativeQuery = true)
+    Collection<UsuarioPapelCondominioLink> buscarPorUsuarioECondominio(Long usuario_id, Long idCondominio);
 }

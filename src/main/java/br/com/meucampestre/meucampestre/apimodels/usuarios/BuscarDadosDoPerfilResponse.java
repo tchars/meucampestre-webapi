@@ -15,7 +15,6 @@ import java.util.Collection;
 @NoArgsConstructor
 public class BuscarDadosDoPerfilResponse
 {
-
     private Long id;
     private String nome;
     private String documento;

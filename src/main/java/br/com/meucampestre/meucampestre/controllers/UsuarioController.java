@@ -1,10 +1,7 @@
 package br.com.meucampestre.meucampestre.controllers;
 
 import br.com.meucampestre.meucampestre.apimodels.condominio.BuscarTodosUsuariosDeUmCondominioResponse;
-import br.com.meucampestre.meucampestre.apimodels.usuarios.AtualizarUsuarioRequest;
-import br.com.meucampestre.meucampestre.apimodels.usuarios.AtualizarUsuarioResponse;
-import br.com.meucampestre.meucampestre.apimodels.usuarios.CriarUsuarioRequest;
-import br.com.meucampestre.meucampestre.apimodels.usuarios.CriarUsuarioResponse;
+import br.com.meucampestre.meucampestre.apimodels.usuarios.*;
 import br.com.meucampestre.meucampestre.apimodels.usuarios.partials.GenericResponse;
 import br.com.meucampestre.meucampestre.applications.AutenticacaoApplication;
 import br.com.meucampestre.meucampestre.applications.CondominioApplication;
@@ -91,6 +88,30 @@ public class UsuarioController {
                     e.getMessage()));
         }
     }
+
+    @GetMapping("/{idCondominio}/usuario/{documentoUsuario}")
+    public ResponseEntity<?> buscarUsuarioDeUmCondominio(@PathVariable Long idCondominio,
+                                                         @PathVariable String documentoUsuario)
+    {
+        try
+        {
+            String usuarioDoToken = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+            _autenticacaoApplication.autenticarUsuario(usuarioDoToken, idCondominio,
+                    TiposDePapeis.SINDICO);
+
+            BuscarDadosDoPerfilResponse usuario =
+                    _usuarioApplication.buscarDadosDeUmUsuario(idCondominio, documentoUsuario);
+
+            return ResponseEntity.ok().body(usuario);
+        }
+        catch (Exception e)
+        {
+            return ResponseEntity.badRequest().body(new GenericResponse(HttpStatus.NOT_FOUND.value(),
+                    e.getMessage()));
+        }
+    }
+
 
     @PutMapping("/{idCondominio}/usuario")
     public ResponseEntity<AtualizarUsuarioResponse> atualizarPerfil(@PathVariable Long idCondominio,

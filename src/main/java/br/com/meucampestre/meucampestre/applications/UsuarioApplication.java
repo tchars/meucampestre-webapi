@@ -1,9 +1,7 @@
 package br.com.meucampestre.meucampestre.applications;
 
-import br.com.meucampestre.meucampestre.apimodels.usuarios.AtualizarUsuarioRequest;
-import br.com.meucampestre.meucampestre.apimodels.usuarios.AtualizarUsuarioResponse;
-import br.com.meucampestre.meucampestre.apimodels.usuarios.CriarUsuarioRequest;
-import br.com.meucampestre.meucampestre.apimodels.usuarios.CriarUsuarioResponse;
+import br.com.meucampestre.meucampestre.apimodels.usuarios.*;
+import br.com.meucampestre.meucampestre.apimodels.usuarios.partials.CondominioResponse;
 import br.com.meucampestre.meucampestre.domain.models.Condominio;
 import br.com.meucampestre.meucampestre.domain.models.Papel;
 import br.com.meucampestre.meucampestre.domain.models.Usuario;
@@ -16,10 +14,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -118,6 +113,32 @@ public class UsuarioApplication {
                 request.getPapeis());
     }
 
+    public BuscarDadosDoPerfilResponse buscarDadosDeUmUsuario(Long idCondominio, String documentoUsuario)
+    {
+        Usuario usr = _usuarioService.buscarUsuarioPeloDocumento(documentoUsuario);
+
+        Collection<UsuarioPapelCondominioLink> link =
+                _usuarioPapelCondominioLinkRepo.buscarPorUsuarioECondominio(usr.getId(), idCondominio);
+
+        Collection<String> papeis = new ArrayList<>();
+        for (UsuarioPapelCondominioLink lk : link)
+        {
+            papeis.add(lk.getPapel().getNome());
+        }
+
+        Collection<CondominioResponse> cdres = new ArrayList<>();
+
+        Optional<UsuarioPapelCondominioLink> condominioLink = link.stream().findFirst();
+
+        UsuarioPapelCondominioLink llk = condominioLink.get();
+
+        cdres.add(new CondominioResponse(llk.getCondominio().getId(), llk.getCondominio().getNome(),
+                llk.getCondominio().getDocumento(), papeis));
+
+        return new BuscarDadosDoPerfilResponse(usr.getId(), usr.getNome(), usr.getDocumento(),
+                cdres);
+    }
+
     // TODO: Usuários sem condomínios devem ser apagados
     public void removerUsuario(Long idCondominio, String documentoUsuario)
     {
@@ -156,4 +177,6 @@ public class UsuarioApplication {
 
         return usuario;
     }
+
+
 }
