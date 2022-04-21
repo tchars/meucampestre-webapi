@@ -54,11 +54,16 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers(Rotas.URL_PREFIX_V1 + "/backoffice/**")
                 .hasAnyAuthority(TiposDePapeis.BACKOFFICE);
 
-        // USUARIO
+        // MINHA CONTA
         http.authorizeRequests()
                 .antMatchers(Rotas.URL_PREFIX_V1 + "/minhaConta/**")
                 .hasAnyAuthority(TiposDePapeis.BACKOFFICE, TiposDePapeis.SINDICO,
                         TiposDePapeis.MORADOR, TiposDePapeis.CONDOMINIO, TiposDePapeis.PORTEIRO);
+
+        // SINDICO
+        http.authorizeRequests()
+                .antMatchers(Rotas.URL_PREFIX_V1 + "/usuarios/**/usuario")
+                .hasAnyAuthority(TiposDePapeis.BACKOFFICE, TiposDePapeis.SINDICO);
 
         http.authorizeRequests().anyRequest().authenticated();
 

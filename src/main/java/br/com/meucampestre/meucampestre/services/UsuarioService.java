@@ -77,7 +77,7 @@ public class UsuarioService implements IUsuarioService, UserDetailsService {
 
 
 
-    // Sem edfinição
+    // Sem definição
     @Override
     public Usuario buscarUsuarioPeloDocumento(String documento) {
         return _usuarioRepo.findByDocumento(documento);

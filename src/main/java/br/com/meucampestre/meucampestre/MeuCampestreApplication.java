@@ -29,6 +29,8 @@ public class MeuCampestreApplication {
 	@Bean
 	CommandLineRunner run(UsuarioService usuarioService){
 		return args -> {
+
+			// TODO: CRIAR CONDOMINIO E USUARIO
 			usuarioService.salvarPapel(new Papel(null, TiposDePapeis.BACKOFFICE, null, null));
 			usuarioService.salvarPapel(new Papel(null, TiposDePapeis.CONDOMINIO, null, null));
 			usuarioService.salvarPapel(new Papel(null, TiposDePapeis.SINDICO,null,null));
