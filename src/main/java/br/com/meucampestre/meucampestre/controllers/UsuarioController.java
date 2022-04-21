@@ -1,6 +1,8 @@
 package br.com.meucampestre.meucampestre.controllers;
 
 import br.com.meucampestre.meucampestre.apimodels.condominio.BuscarTodosUsuariosDeUmCondominioResponse;
+import br.com.meucampestre.meucampestre.apimodels.usuarios.AtualizarUsuarioRequest;
+import br.com.meucampestre.meucampestre.apimodels.usuarios.AtualizarUsuarioResponse;
 import br.com.meucampestre.meucampestre.apimodels.usuarios.CriarUsuarioRequest;
 import br.com.meucampestre.meucampestre.apimodels.usuarios.CriarUsuarioResponse;
 import br.com.meucampestre.meucampestre.apimodels.usuarios.partials.GenericResponse;
@@ -88,5 +90,25 @@ public class UsuarioController {
             return ResponseEntity.badRequest().body(new GenericResponse(HttpStatus.NOT_FOUND.value(),
                     e.getMessage()));
         }
+    }
+
+    @PutMapping("/{idCondominio}/usuario")
+    public ResponseEntity<AtualizarUsuarioResponse> atualizarPerfil(@PathVariable Long idCondominio,
+                                                                    @RequestBody
+                                                                            AtualizarUsuarioRequest request)
+    {
+        String usuarioDoToken = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+        _autenticacaoApplication.autenticarUsuario(usuarioDoToken, idCondominio,
+                TiposDePapeis.SINDICO);
+
+        AtualizarUsuarioResponse usuarioAtualizado =
+                _usuarioApplication.atualizarPerfilDoUsuario(idCondominio, request);
+
+        if (usuarioAtualizado == null) {
+            ResponseEntity.notFound().build();
+        }
+
+        return ResponseEntity.ok().body(usuarioAtualizado);
     }
 }

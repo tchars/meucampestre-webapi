@@ -13,7 +13,7 @@ import javax.persistence.*;
 public class UsuarioPapelCondominioLink {
 
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE})

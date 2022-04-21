@@ -4,6 +4,7 @@ import br.com.meucampestre.meucampestre.apimodels.condominio.BuscarTodosUsuarios
 import br.com.meucampestre.meucampestre.apimodels.condominio.CriarCondominioRequest;
 import br.com.meucampestre.meucampestre.apimodels.condominio.CriarCondominioResponse;
 import br.com.meucampestre.meucampestre.apimodels.condominio.partials.MoradorDoCondominio;
+import br.com.meucampestre.meucampestre.apimodels.usuarios.AtualizarUsuarioResponse;
 import br.com.meucampestre.meucampestre.apimodels.usuarios.CriarUsuarioRequest;
 import br.com.meucampestre.meucampestre.apimodels.usuarios.CriarUsuarioResponse;
 import br.com.meucampestre.meucampestre.domain.constants.TiposDePapeis;

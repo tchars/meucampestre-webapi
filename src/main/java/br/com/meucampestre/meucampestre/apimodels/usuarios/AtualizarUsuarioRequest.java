@@ -14,9 +14,13 @@ import java.util.Collection;
 @Setter
 public class AtualizarUsuarioRequest
 {
-    private String nome;
-    private String email;
-    private String telefone;
+//    private String nome;
+//    private String email;
+//    private String telefone;
+//    private String documento;
 
-    private Collection<String> nivelDeAcesso = new ArrayList<>();
+    private String nome;
+    private String documento;
+
+    private Collection<String> papeis = new ArrayList<>();
 }

@@ -1,5 +1,7 @@
 package br.com.meucampestre.meucampestre.applications;
 
+import br.com.meucampestre.meucampestre.apimodels.usuarios.AtualizarUsuarioRequest;
+import br.com.meucampestre.meucampestre.apimodels.usuarios.AtualizarUsuarioResponse;
 import br.com.meucampestre.meucampestre.apimodels.usuarios.CriarUsuarioRequest;
 import br.com.meucampestre.meucampestre.apimodels.usuarios.CriarUsuarioResponse;
 import br.com.meucampestre.meucampestre.domain.models.Condominio;
@@ -15,6 +17,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -26,6 +29,7 @@ public class UsuarioApplication {
     private final IUsuarioService _usuarioService;
     private final IPapelService _papelService;
     private final ICondominioService _condominioService;
+    private final PasswordEncoder _encoder;
     private final UsuarioPapelCondominioLinkRepo _usuarioPapelCondominioLinkRepo;
 
     public CriarUsuarioResponse criarUsuario(Long idCondominio,
@@ -78,18 +82,37 @@ public class UsuarioApplication {
         throw new RuntimeException("Usuário já possui cadastro neste condomínio com esta role");
     }
 
+    public AtualizarUsuarioResponse atualizarPerfilDoUsuario(Long idCondominio,
+                                                             AtualizarUsuarioRequest request)
+    {
+        Usuario usuarioAntigo = _usuarioService.buscarUsuarioPeloDocumento(request.getDocumento());
 
-//    public Object atualizarUsuario() {
-//
-//        Usuario usuarioASerCriado =
-//                _usuarioService.buscarUsuarioPeloDocumento(request.getDocumento());
-//
-//        Papel papelDesejado = _papelService.buscarPapelPeloNome(request.getPapel());
-//
-//        Condominio condominio = _condominioService.buscarCondominio(idCondominio);
-//
-//    }
+        Collection<Papel> papeis = new ArrayList<>();
+        for (String papel : request.getPapeis())
+        {
+            papeis.add(_papelService.buscarPapelPeloNome(papel));
+        }
 
+        //private String nome;
+        usuarioAntigo.setNome(request.getNome());
+        //private String documento;
+        usuarioAntigo.setDocumento(request.getDocumento());
+
+        //private Collection<String> papeis = new ArrayList<>();
+        usuarioAntigo.setPapeis(papeis);
+
+        _usuarioService.salvarUsuario(usuarioAntigo);
+
+        _usuarioPapelCondominioLinkRepo.apagarTodasPermissoesDoUsuarioAoCondominio(usuarioAntigo.getId(), idCondominio);
+
+        for (Papel pp : papeis)
+        {
+            _usuarioPapelCondominioLinkRepo.inserirPermissoesDoUsuarioAoCondominio(usuarioAntigo.getId(), idCondominio, pp.getId());
+        }
+
+        return new AtualizarUsuarioResponse(usuarioAntigo.getNome(), usuarioAntigo.getDocumento(),
+                request.getPapeis());
+    }
 
     private CriarUsuarioResponse mapParaResponse(Usuario usuario, Condominio condominio)
     {
