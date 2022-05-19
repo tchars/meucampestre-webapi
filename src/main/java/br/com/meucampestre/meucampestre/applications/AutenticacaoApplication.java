@@ -1,11 +1,10 @@
 package br.com.meucampestre.meucampestre.applications;
 
 import br.com.meucampestre.meucampestre.domain.constants.TiposDePapeis;
-import br.com.meucampestre.meucampestre.domain.models.Condominio;
 import br.com.meucampestre.meucampestre.domain.models.Papel;
 import br.com.meucampestre.meucampestre.domain.models.Usuario;
-import br.com.meucampestre.meucampestre.domain.models.UsuarioPapelCondominioLink;
-import br.com.meucampestre.meucampestre.repositories.UsuarioPapelCondominioLinkRepo;
+import br.com.meucampestre.meucampestre.domain.models.UsuarioPapelCondominio;
+import br.com.meucampestre.meucampestre.repositories.UsuarioPapelCondominioRepo;
 import br.com.meucampestre.meucampestre.services.JWTService;
 import br.com.meucampestre.meucampestre.services.PapelService;
 import br.com.meucampestre.meucampestre.services.UsuarioService;
@@ -25,7 +24,7 @@ public class AutenticacaoApplication {
     private final JWTService _jwtService;
 
     private final UsuarioService _usuarioService;
-    private final UsuarioPapelCondominioLinkRepo _usuarioPapelCondominioLinkRepo;
+    private final UsuarioPapelCondominioRepo _usuarioPapelCondominioRepo;
     private final PapelService _papelService;
 
 
@@ -48,8 +47,8 @@ public class AutenticacaoApplication {
             throw new RuntimeException("Papel do token não existe na base");
         }
 
-        UsuarioPapelCondominioLink link =
-                _usuarioPapelCondominioLinkRepo.buscarPorUsuarioCondominioPapel(usr.getId(),
+        UsuarioPapelCondominio link =
+                _usuarioPapelCondominioRepo.buscarPorUsuarioCondominioPapel(usr.getId(),
                         idCondominio, papel.getId());
 
         if (usr.getId() > 1)

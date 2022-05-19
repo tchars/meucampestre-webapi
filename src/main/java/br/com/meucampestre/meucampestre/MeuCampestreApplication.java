@@ -39,8 +39,20 @@ public class MeuCampestreApplication {
 			usuarioService.salvarPapel(new Papel(null, TiposDePapeis.MORADOR, null, null));
 
 			usuarioService.salvarUsuario(
-					new Usuario(null, "Backoffice MeuCampestre", "123456", "00011122233",
-							null,  null,null)
+					new Usuario(
+							null,
+							"Back Office - Meu Campestre",
+							"bo@meucampestre.com.br",
+							"123123",
+							"00011122233",
+							"4133331234",
+							"https://avatars.dicebear" +
+									".com/v2/identicon/4bcd5df34f59686b680f036d26b31277.svg",
+							true,
+							null,
+							null,
+							null
+					)
 			);
 
 			usuarioService.adicionarPapelAoUsuario("00011122233", TiposDePapeis.BACKOFFICE);

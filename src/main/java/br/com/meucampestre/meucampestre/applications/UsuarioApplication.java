@@ -5,8 +5,8 @@ import br.com.meucampestre.meucampestre.apimodels.usuarios.partials.CondominioRe
 import br.com.meucampestre.meucampestre.domain.models.Condominio;
 import br.com.meucampestre.meucampestre.domain.models.Papel;
 import br.com.meucampestre.meucampestre.domain.models.Usuario;
-import br.com.meucampestre.meucampestre.domain.models.UsuarioPapelCondominioLink;
-import br.com.meucampestre.meucampestre.repositories.UsuarioPapelCondominioLinkRepo;
+import br.com.meucampestre.meucampestre.domain.models.UsuarioPapelCondominio;
+import br.com.meucampestre.meucampestre.repositories.UsuarioPapelCondominioRepo;
 import br.com.meucampestre.meucampestre.services.interfaces.ICondominioService;
 import br.com.meucampestre.meucampestre.services.interfaces.IPapelService;
 import br.com.meucampestre.meucampestre.services.interfaces.IUsuarioService;
@@ -25,24 +25,25 @@ public class UsuarioApplication {
     private final IPapelService _papelService;
     private final ICondominioService _condominioService;
     private final PasswordEncoder _encoder;
-    private final UsuarioPapelCondominioLinkRepo _usuarioPapelCondominioLinkRepo;
+    private final UsuarioPapelCondominioRepo _usuarioPapelCondominioRepo;
 
     public CriarUsuarioResponse criarUsuario(Long idCondominio,
                                              CriarUsuarioRequest request)
     {
-        Usuario usuarioASerCriado =
-                _usuarioService.buscarUsuarioPeloDocumento(request.getDocumento());
         Papel papelDesejado = _papelService.buscarPapelPeloNome(request.getPapel());
-        Condominio condominio = _condominioService.buscarCondominio(idCondominio);
-
         if (papelDesejado == null)
         {
             throw new RuntimeException("Permissão/Role não encontrada");
         }
 
-        if (condominio == null) {
+        Condominio condominio = _condominioService.buscarCondominio(idCondominio);
+        if (condominio == null)
+        {
             throw new RuntimeException("Condomínio não encontrado");
         }
+
+        Usuario usuarioASerCriado =
+                _usuarioService.buscarUsuarioPeloDocumento(request.getDocumento());
 
         // Usuário não existe no sistema
         if (usuarioASerCriado == null)
@@ -51,30 +52,35 @@ public class UsuarioApplication {
             usuarioASerCriado = _usuarioService.salvarUsuario(
                     mapearDadosParaNovoUsuario(request, papelDesejado));
 
-            _usuarioPapelCondominioLinkRepo.save(new UsuarioPapelCondominioLink(null,
-                    usuarioASerCriado, condominio, papelDesejado));
+            _usuarioPapelCondominioRepo.save(new UsuarioPapelCondominio(null,
+                    usuarioASerCriado, condominio, papelDesejado, false));
 
             return mapParaResponse(usuarioASerCriado, condominio);
         }
 
         // Se o usuário já existe no sistema
         // verifico se ele já existe no condomínio
-        UsuarioPapelCondominioLink usuarioJaExisteComARoleNesteCondominio =
-                _usuarioPapelCondominioLinkRepo
-                        .buscarPorUsuarioCondominioPapel(usuarioASerCriado.getId(), condominio.getId(),
-                                papelDesejado.getId());
+        UsuarioPapelCondominio usuarioJaExisteComARoleNesteCondominio =
+                _usuarioPapelCondominioRepo
+                        .buscarPorUsuarioCondominioPapel(usuarioASerCriado.getId(),
+                                condominio.getId(),
+                                papelDesejado.getId()
+                        );
 
-        // Se ele não tiver relação entre usuário - condomínio - role pedida, posso criar
-        if (usuarioJaExisteComARoleNesteCondominio == null)
+        // Se ele tiver relação entre usuário - condomínio - role pedida, não posso criar
+        if (usuarioJaExisteComARoleNesteCondominio != null)
         {
-            UsuarioPapelCondominioLink usuario =
-                    _usuarioPapelCondominioLinkRepo.save(new UsuarioPapelCondominioLink(null,
-                    usuarioASerCriado, condominio, papelDesejado));
-
-            return mapParaResponse(usuarioASerCriado, condominio);
+            throw new RuntimeException("Usuário já possui cadastro neste condomínio com esta role");
         }
 
-        throw new RuntimeException("Usuário já possui cadastro neste condomínio com esta role");
+        _usuarioPapelCondominioRepo.save(new UsuarioPapelCondominio(
+                null,
+                usuarioASerCriado,
+                condominio,
+                papelDesejado, false)
+        );
+
+        return mapParaResponse(usuarioASerCriado, condominio);
     }
 
     public AtualizarUsuarioResponse atualizarPerfilDoUsuario(Long idCondominio,
@@ -82,8 +88,9 @@ public class UsuarioApplication {
     {
         Usuario usuarioAntigo = _usuarioService.buscarUsuarioPeloDocumento(request.getDocumento());
 
-        if (usuarioAntigo == null) {
-            throw new RuntimeException("Usuário não existe");
+        if (usuarioAntigo == null)
+        {
+            throw new RuntimeException("Usuário não encontrado");
         }
 
         Collection<Papel> papeis = new ArrayList<>();
@@ -92,21 +99,26 @@ public class UsuarioApplication {
             papeis.add(_papelService.buscarPapelPeloNome(papel));
         }
 
-        //private String nome;
         usuarioAntigo.setNome(request.getNome());
-        //private String documento;
-        usuarioAntigo.setDocumento(request.getDocumento());
+        usuarioAntigo.setEmail(request.getEmail());
 
-        //private Collection<String> papeis = new ArrayList<>();
+        if (!request.getSenha().isEmpty())
+        {
+            usuarioAntigo.setSenha(_encoder.encode(request.getSenha()));
+        }
+
+        usuarioAntigo.setTelefone(request.getTelefone());
+        usuarioAntigo.setImagemUrl(request.getImagemUrl());
+
         usuarioAntigo.setPapeis(papeis);
 
         _usuarioService.salvarUsuario(usuarioAntigo);
 
-        _usuarioPapelCondominioLinkRepo.apagarTodasPermissoesDoUsuarioAoCondominio(usuarioAntigo.getId(), idCondominio);
+        _usuarioPapelCondominioRepo.apagarTodasPermissoesDoUsuarioAoCondominio(usuarioAntigo.getId(), idCondominio);
 
         for (Papel pp : papeis)
         {
-            _usuarioPapelCondominioLinkRepo.inserirPermissoesDoUsuarioAoCondominio(usuarioAntigo.getId(), idCondominio, pp.getId());
+            _usuarioPapelCondominioRepo.inserirPermissoesDoUsuarioAoCondominio(usuarioAntigo.getId(), idCondominio, pp.getId());
         }
 
         return new AtualizarUsuarioResponse(usuarioAntigo.getNome(), usuarioAntigo.getDocumento(),
@@ -116,27 +128,37 @@ public class UsuarioApplication {
     public BuscarDadosDoPerfilResponse buscarDadosDeUmUsuario(Long idCondominio, String documentoUsuario)
     {
         Usuario usr = _usuarioService.buscarUsuarioPeloDocumento(documentoUsuario);
+        if (usr == null)
+        {
+            throw new RuntimeException("Usuário não encontrado");
+        }
 
-        Collection<UsuarioPapelCondominioLink> link =
-                _usuarioPapelCondominioLinkRepo.buscarPorUsuarioECondominio(usr.getId(), idCondominio);
+        Collection<UsuarioPapelCondominio> link =
+                _usuarioPapelCondominioRepo.buscarPorUsuarioECondominio(usr.getId(), idCondominio);
 
         Collection<String> papeis = new ArrayList<>();
-        for (UsuarioPapelCondominioLink lk : link)
+        for (UsuarioPapelCondominio lk : link)
         {
             papeis.add(lk.getPapel().getNome());
         }
 
         Collection<CondominioResponse> cdres = new ArrayList<>();
 
-        Optional<UsuarioPapelCondominioLink> condominioLink = link.stream().findFirst();
+        Optional<UsuarioPapelCondominio> condominioLink = link.stream().findFirst();
 
-        UsuarioPapelCondominioLink llk = condominioLink.get();
+        UsuarioPapelCondominio llk = condominioLink.get();
 
         cdres.add(new CondominioResponse(llk.getCondominio().getId(), llk.getCondominio().getNome(),
                 llk.getCondominio().getDocumento(), papeis));
 
-        return new BuscarDadosDoPerfilResponse(usr.getId(), usr.getNome(), usr.getDocumento(),
-                cdres);
+        BuscarDadosDoPerfilResponse resp = new BuscarDadosDoPerfilResponse();
+
+        resp.setId(usr.getId());
+        resp.setNome(usr.getNome());
+        resp.setDocumento(resp.getDocumento());
+        resp.setCondominios(cdres);
+
+        return resp;
     }
 
     // TODO: Usuários sem condomínios devem ser apagados
@@ -148,7 +170,7 @@ public class UsuarioApplication {
             throw new RuntimeException("Usuário não encontrado");
         }
 
-        _usuarioPapelCondominioLinkRepo.apagarTodasPermissoesDoUsuarioAoCondominio(usr.getId(),
+        _usuarioPapelCondominioRepo.apagarTodasPermissoesDoUsuarioAoCondominio(usr.getId(),
                  idCondominio);
     }
 
@@ -165,18 +187,16 @@ public class UsuarioApplication {
     private Usuario mapearDadosParaNovoUsuario(CriarUsuarioRequest request,
                                                Papel papel)
     {
-        Usuario usuario = new Usuario(null,
-                request.getNome(),
-                request.getSenha(),
-                request.getDocumento(),
-                new ArrayList<>(),
-                new Date(System.currentTimeMillis()),
-                new Date(System.currentTimeMillis()));
+        Usuario usuario = new Usuario();
+
+        usuario.setNome(request.getNome());
+        usuario.setEmail(request.getEmail());
+        usuario.setSenha(request.getSenha());
+        usuario.setDocumento(request.getDocumento());
+        usuario.setTelefone(request.getTelefone());
 
         usuario.getPapeis().add(papel);
 
         return usuario;
     }
-
-
 }

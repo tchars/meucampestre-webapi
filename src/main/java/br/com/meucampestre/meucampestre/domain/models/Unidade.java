@@ -1,8 +1,6 @@
 package br.com.meucampestre.meucampestre.domain.models;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import javax.persistence.*;
 import java.util.ArrayList;
@@ -13,11 +11,15 @@ import java.util.Date;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class Unidade {
-
+@Getter
+@Setter
+public class Unidade
+{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    private String titulo;
+    private String endereco;
     private String descricao;
 
     @Column(columnDefinition="TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
@@ -30,6 +32,6 @@ public class Unidade {
     @Temporal(TemporalType.TIMESTAMP)
     private Date atualizadoEm;
 
-    @OneToMany(fetch = FetchType.EAGER)
+    @Transient
     private Collection<Usuario> usuarios = new ArrayList<>();
 }

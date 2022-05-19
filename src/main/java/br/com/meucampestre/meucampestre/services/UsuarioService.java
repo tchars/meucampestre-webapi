@@ -1,15 +1,13 @@
 package br.com.meucampestre.meucampestre.services;
 
-import br.com.meucampestre.meucampestre.apimodels.condominio.partials.MoradorDoCondominio;
 import br.com.meucampestre.meucampestre.apimodels.usuarios.BuscarDadosDoPerfilResponse;
 import br.com.meucampestre.meucampestre.apimodels.usuarios.partials.CondominioResponse;
-import br.com.meucampestre.meucampestre.domain.models.Condominio;
 import br.com.meucampestre.meucampestre.domain.models.Papel;
 import br.com.meucampestre.meucampestre.domain.models.Usuario;
-import br.com.meucampestre.meucampestre.domain.models.UsuarioPapelCondominioLink;
+import br.com.meucampestre.meucampestre.domain.models.UsuarioPapelCondominio;
 import br.com.meucampestre.meucampestre.repositories.CondominioRepo;
 import br.com.meucampestre.meucampestre.repositories.PapelRepo;
-import br.com.meucampestre.meucampestre.repositories.UsuarioPapelCondominioLinkRepo;
+import br.com.meucampestre.meucampestre.repositories.UsuarioPapelCondominioRepo;
 import br.com.meucampestre.meucampestre.repositories.UsuarioRepo;
 import br.com.meucampestre.meucampestre.services.interfaces.IUsuarioService;
 import lombok.RequiredArgsConstructor;
@@ -30,12 +28,12 @@ import java.util.List;
 @RequiredArgsConstructor
 @Transactional
 @Slf4j
-public class UsuarioService implements IUsuarioService, UserDetailsService {
-
+public class UsuarioService implements IUsuarioService, UserDetailsService
+{
     private final UsuarioRepo _usuarioRepo;
     private final PapelRepo _papelRepo;
     private final CondominioRepo _condominioRepo;
-    private final UsuarioPapelCondominioLinkRepo _usuarioPapelCondominioLinkRepo;
+    private final UsuarioPapelCondominioRepo _usuarioPapelCondominioRepo;
     private final PasswordEncoder _passwordEncoder;
 
     @Override
@@ -43,12 +41,12 @@ public class UsuarioService implements IUsuarioService, UserDetailsService {
     {
         Usuario usuario = _usuarioRepo.findByDocumento(documento);
 
-        Collection<UsuarioPapelCondominioLink> link =
-                _usuarioPapelCondominioLinkRepo.buscarPorUsuario(usuario.getId());
+        Collection<UsuarioPapelCondominio> link =
+                _usuarioPapelCondominioRepo.buscarPorUsuario(usuario.getId());
 
         BuscarDadosDoPerfilResponse response = new BuscarDadosDoPerfilResponse();
 
-        for (UsuarioPapelCondominioLink item : link)
+        for (UsuarioPapelCondominio item : link)
         {
             Collection<String> pp = new ArrayList<>();
 
@@ -58,8 +56,8 @@ public class UsuarioService implements IUsuarioService, UserDetailsService {
 
                 response.getCondominios().add(new CondominioResponse(
                         item.getId(),
-                        item.getCondominio().getNome(),
-                        item.getCondominio().getDocumento(),
+                        null, //item.getCondominio().getNome(),
+                        null, //item.getCondominio().getDocumento(),
                         pp));
             }
             else
@@ -68,12 +66,12 @@ public class UsuarioService implements IUsuarioService, UserDetailsService {
 
                 for (CondominioResponse condominio : response.getCondominios())
                 {
-                    if (condominio.getDocumento().equals(item.getCondominio().getDocumento()))
-                    {
-                        condominio.getTipoDePerfil().add(item.getPapel().getNome());
-                        devoAdicionar = false;
-                        break;
-                    }
+//                    if (condominio.getDocumento().equals(item.getCondominio().getDocumento()))
+//                    {
+//                        condominio.getTipoDePerfil().add(item.getPapel().getNome());
+//                        devoAdicionar = false;
+//                        break;
+//                    }
                 }
 
                 if (devoAdicionar)
@@ -84,8 +82,8 @@ public class UsuarioService implements IUsuarioService, UserDetailsService {
                     response.getCondominios().add(
                         new CondominioResponse(
                             item.getCondominio().getId(),
-                            item.getCondominio().getNome(),
-                            item.getCondominio().getDocumento(),
+                            null, //item.getCondominio().getNome(),
+                            null, //item.getCondominio().getDocumento(),
                             papeisConcat
                         )
                     );
@@ -162,12 +160,21 @@ public class UsuarioService implements IUsuarioService, UserDetailsService {
     }
 
     @Override
-    public void adicionarPapelAoUsuario(String documento, String nomePapel) {
-
+    public void adicionarPapelAoUsuario(String documento, String nomePapel)
+    {
         log.info("adicionarPapelAoUsuario - adicionando {} ao documento {}", nomePapel, documento);
 
         Usuario usuario = _usuarioRepo.findByDocumento(documento);
         Papel papel = _papelRepo.findByNome(nomePapel);
-        usuario.getPapeis().add(papel);
+
+        UsuarioPapelCondominio link = new UsuarioPapelCondominio();
+
+        link.setId(null);
+        link.setUsuario(usuario);
+        link.setPapel(papel);
+        link.setCondominio(null);
+        link.setTipoEspecial(true);
+
+        _usuarioPapelCondominioRepo.save(link);
     }
 }

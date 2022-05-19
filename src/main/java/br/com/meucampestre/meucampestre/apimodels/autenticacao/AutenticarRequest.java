@@ -9,7 +9,8 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class AutenticarRequest {
+public class AutenticarRequest
+{
     private String documento;
     private String senha;
 }

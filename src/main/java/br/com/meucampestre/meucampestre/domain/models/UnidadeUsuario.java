@@ -1,8 +1,6 @@
 package br.com.meucampestre.meucampestre.domain.models;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import javax.persistence.*;
 
@@ -10,8 +8,10 @@ import javax.persistence.*;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class UsuarioPapelCondominioLink {
-
+@Getter
+@Setter
+public class UnidadeUsuario
+{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -21,10 +21,6 @@ public class UsuarioPapelCondominioLink {
     private Usuario usuario;
 
     @ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
-    @JoinColumn(name = "condominio_id")
-    private Condominio condominio;
-
-    @ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
-    @JoinColumn(name = "papel_id")
-    private Papel papel;
+    @JoinColumn(name = "unidade_id")
+    private Unidade unidade;
 }

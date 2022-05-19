@@ -9,11 +9,12 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class CriarUsuarioRequest {
-
+public class CriarUsuarioRequest
+{
     private String nome;
-    private String senha;
     private String email;
+    private String senha;
     private String documento;
+    private String telefone;
     private String papel;
 }

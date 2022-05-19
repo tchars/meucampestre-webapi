@@ -1,8 +1,6 @@
 package br.com.meucampestre.meucampestre.domain.models;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import javax.persistence.*;
 import java.util.Date;
@@ -11,8 +9,10 @@ import java.util.Date;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class Papel {
-
+@Getter
+@Setter
+public class Papel
+{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

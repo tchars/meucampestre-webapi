@@ -51,7 +51,7 @@ public class JWTService {
             String access_token = JWT.create()
                     .withSubject(user.getDocumento())
                     // TODO: Alterar para variável de ambiente
-                    .withExpiresAt(new Date(System.currentTimeMillis() + 100 * 60 * 1000))
+                    .withExpiresAt(new Date(System.currentTimeMillis() + 100 * 60 * 10000))
                     .withIssuer(request.getRequestURL().toString())
                     .withClaim("roles",
                             user.getPapeis()

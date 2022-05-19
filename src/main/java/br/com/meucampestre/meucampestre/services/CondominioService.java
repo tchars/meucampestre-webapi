@@ -24,14 +24,11 @@ import static java.util.Arrays.stream;
 public class CondominioService implements ICondominioService {
 
     private final CondominioRepo _condominioRepo;
-    private final PasswordEncoder _passwordEncoder;
 
     @Override
-    public Condominio salvarCondominio(Condominio condominio) {
+    public Condominio salvarCondominio(Condominio condominio)
+    {
         log.info("salvarCondominio - adicionando {}", condominio.getDocumento());
-
-        condominio.setSenha(_passwordEncoder.encode(condominio.getSenha()));
-
         return _condominioRepo.save(condominio);
     }
 

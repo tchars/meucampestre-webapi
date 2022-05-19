@@ -9,11 +9,12 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class CriarCondominioRequest {
-
+public class CriarCondominioRequest
+{
     private String nome;
-    private String senha;
-    private String documento;
     private String descricao;
     private String email;
+    private String documento;
+    private String endereco;
+    private String imagemUrl;
 }

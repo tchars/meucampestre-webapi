@@ -14,13 +14,12 @@ import java.util.Collection;
 @Setter
 public class AtualizarUsuarioRequest
 {
-//    private String nome;
-//    private String email;
-//    private String telefone;
-//    private String documento;
-
     private String nome;
+    private String email;
+    private String telefone;
     private String documento;
+    private String senha;
+    private String imagemUrl;
 
     private Collection<String> papeis = new ArrayList<>();
 }

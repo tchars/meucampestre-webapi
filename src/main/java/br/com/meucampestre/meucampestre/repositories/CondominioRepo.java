@@ -20,4 +20,7 @@ public interface CondominioRepo extends JpaRepository<Condominio, Long> {
             "AND condU.usuarios_id = u.id " +
             "AND u.documento = ?1", nativeQuery = true)
     List<Condominio> getCondominiosPorDocumentoUsuario(String documentoUsuario);
+
+    @Query(value = "SELECT cond.* FROM condominio cond WHERE cond.documento = ?1", nativeQuery = true)
+    Condominio getCondominioPorDocumento(String documento);
 }

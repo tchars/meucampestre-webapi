@@ -11,10 +11,14 @@ import java.util.Date;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class CriarCondominioResponse {
+public class CriarCondominioResponse
+{
     private Long id;
+    private String nome;
+    private String descricao;
     private String email;
     private String documento;
-    private String descricao;
+    private String endereco;
+    private String imagemUrl;
     private Date criadoEm;
 }

@@ -4,52 +4,58 @@ import br.com.meucampestre.meucampestre.apimodels.condominio.BuscarTodosUsuarios
 import br.com.meucampestre.meucampestre.apimodels.condominio.CriarCondominioRequest;
 import br.com.meucampestre.meucampestre.apimodels.condominio.CriarCondominioResponse;
 import br.com.meucampestre.meucampestre.apimodels.condominio.partials.MoradorDoCondominio;
-import br.com.meucampestre.meucampestre.apimodels.usuarios.AtualizarUsuarioResponse;
-import br.com.meucampestre.meucampestre.apimodels.usuarios.CriarUsuarioRequest;
-import br.com.meucampestre.meucampestre.apimodels.usuarios.CriarUsuarioResponse;
+import br.com.meucampestre.meucampestre.apimodels.usuarios.partials.CondominioResponse;
 import br.com.meucampestre.meucampestre.domain.constants.TiposDePapeis;
 import br.com.meucampestre.meucampestre.domain.models.Condominio;
 import br.com.meucampestre.meucampestre.domain.models.Papel;
-import br.com.meucampestre.meucampestre.domain.models.Usuario;
-import br.com.meucampestre.meucampestre.domain.models.UsuarioPapelCondominioLink;
-import br.com.meucampestre.meucampestre.repositories.UsuarioPapelCondominioLinkRepo;
+import br.com.meucampestre.meucampestre.domain.models.UsuarioPapelCondominio;
+import br.com.meucampestre.meucampestre.repositories.CondominioRepo;
+import br.com.meucampestre.meucampestre.repositories.UsuarioPapelCondominioRepo;
 import br.com.meucampestre.meucampestre.services.interfaces.ICondominioService;
 import br.com.meucampestre.meucampestre.services.interfaces.IPapelService;
-import br.com.meucampestre.meucampestre.services.interfaces.IUsuarioService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.yaml.snakeyaml.util.ArrayUtils;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class CondominioApplication {
 
     private final ICondominioService _condominioService;
-    private final IPapelService _papelService;
-    private final PasswordEncoder _passwordEncoder;
-    private final UsuarioPapelCondominioLinkRepo _usuarioPapelCondominioLinkRepo;
+    private final CondominioRepo _condominioRepo;
+    private final UsuarioPapelCondominioRepo _usuarioPapelCondominioRepo;
 
     // Contexto - CONDOMÍNIO
     public CriarCondominioResponse criarCondominio(CriarCondominioRequest request)
     {
-        Papel papel = _papelService.buscarPapelPeloNome(TiposDePapeis.CONDOMINIO);
+        Condominio condominio = _condominioRepo.getCondominioPorDocumento(request.getDocumento());
+        if (condominio != null)
+        {
+            throw new RuntimeException("Condominínio já cadastrado");
+        }
 
-        Condominio condominio = new Condominio(null, request.getNome(),
-                request.getEmail(), request.getSenha(), request.getDocumento(),
-                request.getDescricao(), papel, null, null,
-                new Date(System.currentTimeMillis()), new Date(System.currentTimeMillis()));
+        Condominio condominioASerCadastrado = new Condominio();
 
-        condominio.setSenha(_passwordEncoder.encode(condominio.getSenha()));
+        condominioASerCadastrado.setNome(request.getNome());
+        condominioASerCadastrado.setDescricao(request.getDescricao());
+        condominioASerCadastrado.setEmail(request.getEmail());
+        condominioASerCadastrado.setDocumento(request.getDocumento());
+        condominioASerCadastrado.setEndereco(request.getEndereco());
+        condominioASerCadastrado.setImagemUrl(request.getImagemUrl());
 
-        Condominio condominoCriado = _condominioService.salvarCondominio(condominio);
+        _condominioService.salvarCondominio(condominioASerCadastrado);
 
-        return new CriarCondominioResponse(condominoCriado.getId(), condominoCriado.getEmail(),
-                condominoCriado.getDocumento(), condominoCriado.getDescricao(),
-                condominoCriado.getCriadoEm());
+        CriarCondominioResponse resp = new CriarCondominioResponse();
+
+        resp.setNome(condominioASerCadastrado.getNome());
+        resp.setDescricao(condominioASerCadastrado.getDescricao());
+        resp.setEmail(condominioASerCadastrado.getEmail());
+        resp.setDocumento(condominioASerCadastrado.getDocumento());
+        resp.setImagemUrl(condominioASerCadastrado.getImagemUrl());
+
+        return resp;
     }
 
     public List<Condominio> buscarTodosCondominios()
@@ -65,15 +71,15 @@ public class CondominioApplication {
     // CONTEXTO USUARIO
     public BuscarTodosUsuariosDeUmCondominioResponse buscarTodosUsuariosDeUmCondominio(Long idCondominio)
     {
-       Collection<UsuarioPapelCondominioLink> condominio =
-               _usuarioPapelCondominioLinkRepo.buscarTodosUsuariosDeUmCondominio(idCondominio);
+       Collection<UsuarioPapelCondominio> condominio =
+               _usuarioPapelCondominioRepo.buscarTodosUsuariosDeUmCondominio(idCondominio);
 
        Condominio cond = _condominioService.buscarCondominio(idCondominio);
 
        BuscarTodosUsuariosDeUmCondominioResponse response =
                new BuscarTodosUsuariosDeUmCondominioResponse();
 
-       for (UsuarioPapelCondominioLink usr : condominio)
+       for (UsuarioPapelCondominio usr : condominio)
        {
            if (response.getMoradores().size() < 1)
            {
