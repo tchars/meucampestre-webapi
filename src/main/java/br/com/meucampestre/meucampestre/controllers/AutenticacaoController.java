@@ -14,7 +14,7 @@ import java.io.IOException;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping(Rotas.URL_PREFIX_V1 + "/autenticacao")
+@RequestMapping(Rotas.URL_PREFIX_V2 + "/autenticacao")
 public class AutenticacaoController {
 
     private final AutenticacaoApplication _autenticacaoApplication;

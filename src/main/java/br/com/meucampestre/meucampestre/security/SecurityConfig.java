@@ -40,31 +40,36 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 new CustomAuthenticationFilter(authenticationManagerBean());
 
         // Redefino a rota de autenticação do spring security
-        customAuthenticationFilter.setFilterProcessesUrl(Rotas.URL_PREFIX_V1 + "/autenticacao");
+        customAuthenticationFilter.setFilterProcessesUrl(Rotas.URL_PREFIX_V2 + "/autenticacao");
 
         http.csrf().disable();
         http.cors();
         http.sessionManagement().sessionCreationPolicy(STATELESS);
 
-        // Rota de Autenticação / LOGIN
-        http.authorizeRequests().antMatchers(Rotas.URL_PREFIX_V1 + "/autenticacao/**")
+        // V2
+        http.authorizeRequests()
+                .antMatchers(Rotas.URL_PREFIX_V2 + "/**")
                 .permitAll();
 
-        // BACKOFFICE - Super admin do sistema
-        http.authorizeRequests()
-                .antMatchers(Rotas.URL_PREFIX_V1 + "/backoffice/**")
-                .hasAnyAuthority(TiposDePapeis.BACKOFFICE);
-
-        // MINHA CONTA
-        http.authorizeRequests()
-                .antMatchers(Rotas.URL_PREFIX_V1 + "/minhaConta/**")
-                .hasAnyAuthority(TiposDePapeis.BACKOFFICE, TiposDePapeis.SINDICO,
-                        TiposDePapeis.MORADOR, TiposDePapeis.CONDOMINIO, TiposDePapeis.PORTEIRO);
-
-        // SINDICO
-        http.authorizeRequests()
-                .antMatchers(Rotas.URL_PREFIX_V1 + "/usuarios/**/usuario")
-                .hasAnyAuthority(TiposDePapeis.BACKOFFICE, TiposDePapeis.SINDICO);
+        // Rota de Autenticação / LOGIN
+//        http.authorizeRequests().antMatchers(Rotas.URL_PREFIX_V2 + "/autenticacao/**")
+//                .permitAll();
+//
+//        // BACKOFFICE - Super admin do sistema
+//        http.authorizeRequests()
+//                .antMatchers(Rotas.URL_PREFIX_V1 + "/backoffice/**")
+//                .hasAnyAuthority(TiposDePapeis.BACKOFFICE);
+//
+//        // MINHA CONTA
+//        http.authorizeRequests()
+//                .antMatchers(Rotas.URL_PREFIX_V1 + "/minhaConta/**")
+//                .hasAnyAuthority(TiposDePapeis.BACKOFFICE, TiposDePapeis.SINDICO,
+//                        TiposDePapeis.MORADOR, TiposDePapeis.CONDOMINIO, TiposDePapeis.PORTEIRO);
+//
+//        // SINDICO
+//        http.authorizeRequests()
+//                .antMatchers(Rotas.URL_PREFIX_V1 + "/usuarios/**/usuario")
+//                .hasAnyAuthority(TiposDePapeis.BACKOFFICE, TiposDePapeis.SINDICO);
 
         http.authorizeRequests().anyRequest().authenticated();
 

@@ -39,7 +39,7 @@ public class UsuarioService implements IUsuarioService, UserDetailsService
     @Override
     public BuscarDadosDoPerfilResponse buscarDadosDoUsuarioPeloToken(String documento)
     {
-        Usuario usuario = _usuarioRepo.findByDocumento(documento);
+        Usuario usuario = _usuarioRepo.findByDocumento(documento).get();
 
         Collection<UsuarioPapelCondominio> link =
                 _usuarioPapelCondominioRepo.buscarPorUsuario(usuario.getId());
@@ -106,7 +106,7 @@ public class UsuarioService implements IUsuarioService, UserDetailsService
     // Sem definição
     @Override
     public Usuario buscarUsuarioPeloDocumento(String documento) {
-        return _usuarioRepo.findByDocumento(documento);
+        return _usuarioRepo.findByDocumento(documento).get();
     }
 
     @Override
@@ -118,7 +118,7 @@ public class UsuarioService implements IUsuarioService, UserDetailsService
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
 
-        Usuario usuario = _usuarioRepo.findByDocumento(username);
+        Usuario usuario = _usuarioRepo.findByDocumento(username).get();
 
         if (usuario == null) {
             log.error("Usuário não encontrado");
@@ -164,7 +164,7 @@ public class UsuarioService implements IUsuarioService, UserDetailsService
     {
         log.info("adicionarPapelAoUsuario - adicionando {} ao documento {}", nomePapel, documento);
 
-        Usuario usuario = _usuarioRepo.findByDocumento(documento);
+        Usuario usuario = _usuarioRepo.findByDocumento(documento).get();
         Papel papel = _papelRepo.findByNome(nomePapel);
 
         UsuarioPapelCondominio link = new UsuarioPapelCondominio();

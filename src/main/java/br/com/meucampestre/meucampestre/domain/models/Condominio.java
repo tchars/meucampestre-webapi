@@ -38,6 +38,8 @@ public class Condominio
 
     private String imagemUrl;
 
+    private Boolean ativo = true;
+
     @Transient
     private Collection<Usuario> usuarios = new ArrayList<>();
 

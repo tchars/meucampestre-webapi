@@ -30,7 +30,7 @@ public class CondominioApplication {
     // Contexto - CONDOMÍNIO
     public CriarCondominioResponse criarCondominio(CriarCondominioRequest request)
     {
-        Condominio condominio = _condominioRepo.getCondominioPorDocumento(request.getDocumento());
+        Condominio condominio = _condominioRepo.getCondominioPorDocumento(request.getDocumento()).get();
         if (condominio != null)
         {
             throw new RuntimeException("Condominínio já cadastrado");

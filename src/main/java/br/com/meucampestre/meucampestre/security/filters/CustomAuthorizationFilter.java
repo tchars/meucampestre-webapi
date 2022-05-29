@@ -41,8 +41,8 @@ public class CustomAuthorizationFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
                                     FilterChain filterChain) throws ServletException, IOException
     {
-        if (request.getServletPath().equals("/api/v1/autenticacao") ||
-            request.getServletPath().equals("/api/v1/autenticacao/renovarToken")
+        if (request.getServletPath().equals("/api/v2/autenticacao") ||
+            request.getServletPath().equals("/api/v2/autenticacao/renovarToken")
         ) {
             filterChain.doFilter(request, response);
         }
