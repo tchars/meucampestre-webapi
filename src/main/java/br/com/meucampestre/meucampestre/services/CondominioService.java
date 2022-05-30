@@ -56,9 +56,9 @@ public class CondominioService implements ICondominioService {
 
         Collection<Usuario> usuarios = new ArrayList<>();
 
-        condominio.getUsuarios().stream().forEach(usuario -> {
-            usuarios.add(usuario);
-        });
+//        condominio.getUsuarios().stream().forEach(usuario -> {
+//            usuarios.add(usuario);
+//        });
 
         return usuarios;
     }

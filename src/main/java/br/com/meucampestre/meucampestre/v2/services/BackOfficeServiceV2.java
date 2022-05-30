@@ -1,15 +1,17 @@
 package br.com.meucampestre.meucampestre.v2.services;
 
+import br.com.meucampestre.meucampestre.domain.constants.TiposDePapeis;
 import br.com.meucampestre.meucampestre.domain.models.*;
 import br.com.meucampestre.meucampestre.repositories.*;
 import br.com.meucampestre.meucampestre.v2.domain.exceptions.*;
+import br.com.meucampestre.meucampestre.v2.domain.models.partials.UsuarioPapelCondominioPartial;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -29,7 +31,15 @@ public class BackOfficeServiceV2 {
     // Condomínio
     // ------------------
     public List<Condominio> buscarTodosCondominios() {
-        return condominioRepo.findAll();
+
+        List<Condominio> condominioList = condominioRepo.findAll();
+
+        for (Condominio condominio : condominioList) {
+            condominio.setUnidades(buscarTodasUnidadesDeUmCondominio(condominio.getId()));
+            condominio.setUsuarios(gerarListaDePapeisDosUsuarios(condominio.getId()));
+        }
+
+        return condominioList;
     }
 
     public Condominio buscarCondominioPeloDocumento(String documento) {
@@ -39,9 +49,52 @@ public class BackOfficeServiceV2 {
     }
 
     public Condominio buscarCondominioPeloId(long idCondominio) {
-        return condominioRepo
+
+        Condominio c = condominioRepo
                 .findById(idCondominio)
                 .orElseThrow(() -> new CondominioNaoEncontradoException(idCondominio));
+
+        // Adiciono usuários e respectivos papeis ao retorno do objeto condominio
+        List<UsuarioPapelCondominioPartial> upList = gerarListaDePapeisDosUsuarios(idCondominio);
+
+        c.setUsuarios(upList);
+
+        // Adiciono unidades ao objeto
+        List<Unidade> unidades = buscarTodasUnidadesDeUmCondominio(idCondominio);
+
+        c.setUnidades(unidades);
+
+        return c;
+    }
+
+    private List<UsuarioPapelCondominioPartial> gerarListaDePapeisDosUsuarios(long idCondominio) {
+
+        Collection<UsuarioPapelCondominio> usuarios =
+                usuarioPapelCondominioRepo.buscarTodosUsuariosDeUmCondominio(idCondominio);
+
+        Map<Usuario, List<UsuarioPapelCondominio>> groupByPriceMap =
+                usuarios.stream().collect(Collectors.groupingBy(UsuarioPapelCondominio::getUsuario));
+
+        List<UsuarioPapelCondominioPartial> upList = new ArrayList<>();
+
+        // Aqui adiciono as roles para cada usuário do condomínio
+        // já que um usuário pode ser várias coisas no mesmo condomínio
+        for (Map.Entry<Usuario, List<UsuarioPapelCondominio>> entry : groupByPriceMap.entrySet())
+        {
+            UsuarioPapelCondominioPartial up = new UsuarioPapelCondominioPartial();
+
+            up.setId(entry.getKey().getId());
+            up.setNome(entry.getKey().getNome());
+            up.setDocumento(entry.getKey().getDocumento());
+
+            for (UsuarioPapelCondominio t : entry.getValue()) {
+                up.getPapeis().add(t.getPapel().getNome());
+            }
+
+            upList.add(up);
+        }
+
+        return upList;
     }
 
     public Condominio salvarCondominio(Condominio novoCondominio)
@@ -154,9 +207,8 @@ public class BackOfficeServiceV2 {
     // ------------------
     // Papéis
     // ------------------
-    public UsuarioPapelCondominio adicionarPapelAoUsuario(long idUsuario, String nomePapel,
-                                                          long idCondominio,
-                                                          boolean tipoEspecial)
+    public void adicionarPapelAoUsuario(long idUsuario, String nomePapel,
+                                                          long idCondominio)
     {
         Usuario u = usuarioRepo.getById(idUsuario)
                 .orElseThrow(() -> new UsuarioNaoEncontradoException(idUsuario));
@@ -164,8 +216,8 @@ public class BackOfficeServiceV2 {
         Papel p = papelRepo.getByNome(nomePapel)
                 .orElseThrow(() -> new PapelDesejadoNaoEncontradoException(nomePapel));
 
-        Condominio c = condominioRepo.findById(idUsuario)
-                .orElseThrow(() -> new CondominioNaoEncontradoException(idCondominio));
+        Condominio c = condominioRepo.findById(idCondominio)
+                    .orElseThrow(() -> new CondominioNaoEncontradoException(idCondominio));
 
         boolean usuarioExiste =
                 usuarioPapelCondominioRepo
@@ -178,9 +230,51 @@ public class BackOfficeServiceV2 {
                     p.getNome(), c.getNome());
         }
 
-        return usuarioPapelCondominioRepo.save(new UsuarioPapelCondominio(null, u, c, p, tipoEspecial));
+        usuarioPapelCondominioRepo.save(new UsuarioPapelCondominio(null, u, c, p, false));
     }
 
+    public Usuario buscarPapeisDoUsuario(long idUsuario, long idCondominio)
+    {
+        Usuario u = usuarioRepo.getById(idUsuario)
+                .orElseThrow(() -> new UsuarioNaoEncontradoException(idUsuario));
+
+        Condominio c = condominioRepo.findById(idCondominio)
+                .orElseThrow(() -> new CondominioNaoEncontradoException(idCondominio));
+
+        List<UsuarioPapelCondominio> usuarioPapeisCondominio =
+                usuarioPapelCondominioRepo.buscarPapeisPorUsuarioECondominio(u.getId(),
+                        c.getId())
+                        .get();
+
+        for (UsuarioPapelCondominio link : usuarioPapeisCondominio)
+        {
+            u.getPapeis().add(link.getPapel());
+        }
+
+        return u;
+    }
+
+    public void adicionarPapelAoUsuarioBackoffice(long idUsuario)
+    {
+        Usuario u = usuarioRepo.getById(idUsuario)
+                .orElseThrow(() -> new UsuarioNaoEncontradoException(idUsuario));
+
+        Papel p = papelRepo.getByNome(TiposDePapeis.BACKOFFICE)
+                .orElseThrow(() -> new PapelDesejadoNaoEncontradoException(TiposDePapeis.BACKOFFICE));
+
+        boolean usuarioExiste =
+                usuarioPapelCondominioRepo
+                        .getPorUsuarioCondominioPapel(u.getId(), null, p.getId())
+                        .isPresent();
+
+        if (usuarioExiste)
+        {
+            throw new UsuarioJaCadastradoComRoleParaOCondominioEscolhidoException(u.getDocumento(),
+                    p.getNome(), null);
+        }
+
+        usuarioPapelCondominioRepo.save(new UsuarioPapelCondominio(null, u, null, p, true));
+    }
 
     // ------------------
     // Unidades
@@ -195,7 +289,37 @@ public class BackOfficeServiceV2 {
             throw new CondominioNaoEncontradoException(idCondominio);
         }
 
-        return condominioUnidadeRepo.buscarTodasUnidadesDeUmCondominioPeloId(idCondominio).get();
+        List<CondominioUnidade> unidadesLink = condominioUnidadeRepo
+                                            .buscarTodasUnidadesDeUmCondominioPeloId(idCondominio)
+                                            .get();
+
+        List<Unidade> unidades = new ArrayList<>();
+
+        for (CondominioUnidade unidade : unidadesLink) {
+            unidades.add(unidade.getUnidade());
+        }
+
+        return unidades;
+    }
+
+    public Unidade buscarUnidadeDeUmCondominio(long idCondominio, long idUnidade)
+    {
+        boolean condominioExiste = condominioRepo
+                .buscarPeloId(idCondominio)
+                .isPresent();
+
+        if (!condominioExiste) {
+            throw new CondominioNaoEncontradoException(idCondominio);
+        }
+
+        Optional<CondominioUnidade> condominioUnidade = condominioUnidadeRepo
+                .buscarUnidadeDeUmCondominio(idCondominio, idUnidade);
+
+        if (condominioUnidade.isEmpty()) {
+            throw new UnidadeNaoEncontradaException(idUnidade);
+        }
+
+        return unidadeRepo.getById(condominioUnidade.get().getUnidade().getId());
     }
 
     public Unidade salvarUnidade(long idCondominio, Unidade unidade)
@@ -214,4 +338,5 @@ public class BackOfficeServiceV2 {
 
         return unidadeSalva;
     }
+
 }

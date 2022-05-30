@@ -61,6 +61,13 @@ public class BackOfficeController {
         return ResponseEntity.ok().body(backOfficeServiceV2.buscarTodasUnidadesDeUmCondominio(idCondominio));
     }
 
+    @GetMapping("/condominios/{idCondominio}/unidades/{idUnidade}")
+    public ResponseEntity<Unidade> buscarUnidadeDeUmCondominio(@PathVariable long idCondominio,
+                                                                      @PathVariable long idUnidade)
+    {
+        return ResponseEntity.ok().body(backOfficeServiceV2.buscarUnidadeDeUmCondominio(idCondominio, idUnidade));
+    }
+
     @PostMapping("/condominios/{idCondominio}/unidades")
     public ResponseEntity<Unidade> salvarUnidadeAoCondominio(@PathVariable long idCondominio,
                                                              @RequestBody Unidade request)
@@ -105,15 +112,21 @@ public class BackOfficeController {
     // CONTEXTO: PAPEIS
     // ----------------------------
     @PostMapping("/papeis")
-    public ResponseEntity<?> adicionarPapelAoUsuario(@RequestBody AdicionarPapelAoUsuarioRequest request)
+    public ResponseEntity<?> adicionarPapelAoUsuarioBackoffice(@RequestBody AdicionarPapelAoUsuarioRequest request)
     {
-        return ResponseEntity.ok().body(backOfficeServiceV2
+        if (request.isTipoEspecial())
+        {
+            backOfficeServiceV2
+                    .adicionarPapelAoUsuarioBackoffice(request.getIdUsuario());
+        } else {
+            backOfficeServiceV2
                 .adicionarPapelAoUsuario(
-                        request.getIdUsuario(),
-                        request.getNomePapel(),
-                        request.getIdCondominio(),
-                        request.isTipoEspecial())
-        );
-    }
+                    request.getIdUsuario(),
+                    request.getNomePapel(),
+                    request.getIdCondominio()
+                );
+        }
 
+        return ResponseEntity.ok().build();
+    }
 }

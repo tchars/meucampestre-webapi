@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.Query;
 
 import javax.transaction.Transactional;
 import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 
 public interface UsuarioPapelCondominioRepo extends JpaRepository<UsuarioPapelCondominio, Long> {
@@ -19,7 +20,9 @@ public interface UsuarioPapelCondominioRepo extends JpaRepository<UsuarioPapelCo
                                                            Long papel_id);
 
     @Query(value = "SELECT * FROM usuario_papel_condominio AS upcl " +
-            "WHERE upcl.usuario_id = ?1 AND upcl.condominio_id = ?2 AND upcl.papel_id = ?3",
+            "WHERE upcl.usuario_id = ?1 " +
+            "AND (upcl.condominio_id IS NULL OR upcl.condominio_id = ?2) " +
+            "AND upcl.papel_id = ?3",
             nativeQuery = true)
     Optional<UsuarioPapelCondominio> getPorUsuarioCondominioPapel(Long usuario_id,
                                                                  Long condominio_id,
@@ -46,4 +49,9 @@ public interface UsuarioPapelCondominioRepo extends JpaRepository<UsuarioPapelCo
     @Query(value = "SELECT * FROM usuario_papel_condominio AS upcl " +
             "WHERE upcl.usuario_id = ?1 AND upcl.condominio_id = ?2", nativeQuery = true)
     Collection<UsuarioPapelCondominio> buscarPorUsuarioECondominio(Long usuario_id, Long idCondominio);
+
+    @Query(value = "SELECT * FROM usuario_papel_condominio AS upcl " +
+            "WHERE upcl.usuario_id = ?1 AND upcl.condominio_id = ?2", nativeQuery = true)
+    Optional<List<UsuarioPapelCondominio>> buscarPapeisPorUsuarioECondominio(Long usuario_id,
+                                                                       Long idCondominio);
 }

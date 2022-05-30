@@ -11,9 +11,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-import java.util.ArrayList;
-import java.util.Date;
-
 @SpringBootApplication
 public class MeuCampestreApplication {
 
@@ -30,9 +27,7 @@ public class MeuCampestreApplication {
 	CommandLineRunner run(UsuarioService usuarioService){
 		return args -> {
 
-			// TODO: CRIAR CONDOMINIO E USUARIO
 			usuarioService.salvarPapel(new Papel(null, TiposDePapeis.BACKOFFICE, null, null));
-			usuarioService.salvarPapel(new Papel(null, TiposDePapeis.CONDOMINIO, null, null));
 			usuarioService.salvarPapel(new Papel(null, TiposDePapeis.SINDICO,null,null));
 			usuarioService.salvarPapel(new Papel(null, TiposDePapeis.CONSELHEIRO, null,null));
 			usuarioService.salvarPapel(new Papel(null, TiposDePapeis.PORTEIRO, null,null));

@@ -12,5 +12,9 @@ public interface CondominioUnidadeRepo extends JpaRepository<CondominioUnidade, 
 
     @Query(value = "SELECT * FROM condominio_unidade AS cu WHERE cu.condominio_id = ?1",
             nativeQuery = true)
-    Optional<List<Unidade>> buscarTodasUnidadesDeUmCondominioPeloId(long idCondominio);
+    Optional<List<CondominioUnidade>> buscarTodasUnidadesDeUmCondominioPeloId(long idCondominio);
+
+    @Query(value = "SELECT * FROM condominio_unidade AS cu WHERE cu.condominio_id = ?1 " +
+            "AND cu.unidade_id = ?2", nativeQuery = true)
+    Optional<CondominioUnidade> buscarUnidadeDeUmCondominio(long idCondominio, long idUnidade);
 }

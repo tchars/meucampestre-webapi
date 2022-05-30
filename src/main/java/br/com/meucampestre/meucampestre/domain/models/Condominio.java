@@ -1,18 +1,13 @@
 package br.com.meucampestre.meucampestre.domain.models;
 
+import br.com.meucampestre.meucampestre.v2.domain.models.partials.UsuarioPapelCondominioPartial;
 import lombok.*;
-import org.hibernate.annotations.LazyCollection;
-import org.hibernate.annotations.LazyCollectionOption;
 import org.springframework.lang.Nullable;
 
 import javax.persistence.*;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 @Entity
-@Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
@@ -40,8 +35,11 @@ public class Condominio
 
     private Boolean ativo = true;
 
+//    @Transient
+//    private Collection<Usuario> usuarios = new ArrayList<>();
+
     @Transient
-    private Collection<Usuario> usuarios = new ArrayList<>();
+    private List<UsuarioPapelCondominioPartial> usuarios = new ArrayList<>();
 
     @Transient
     private List<Unidade> unidades = new ArrayList<>();
