@@ -1,7 +1,6 @@
 package br.com.meucampestre.meucampestre.domain.models;
 
 import lombok.*;
-import org.springframework.lang.Nullable;
 
 import javax.persistence.*;
 import java.util.ArrayList;
@@ -19,22 +18,26 @@ public class Usuario
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @Column(nullable = false)
     private String nome;
 
-    @Column(unique = true)
+    @Column(nullable = false, unique = true)
     private String email;
 
+    @Column(nullable = false)
     private String senha;
 
-    @Column(unique = true)
+    @Column(nullable = false, unique = true)
     private String documento;
 
-    @Nullable
+    @Column(nullable = true)
     private String telefone;
 
-    @Nullable
+    @Column(nullable = true)
     private String imagemUrl;
 
+    @Column(nullable = false)
     private Boolean ativo = true;
 
     @Column(columnDefinition="TIMESTAMP DEFAULT CURRENT_TIMESTAMP")

@@ -339,4 +339,32 @@ public class BackOfficeServiceV2 {
         return unidadeSalva;
     }
 
+    public Unidade atualizarDadosUnidade(long idCondominio, long idUnidade, Unidade novosDados) {
+
+        condominioUnidadeRepo
+                .buscarUnidadeDeUmCondominio(idCondominio, idUnidade)
+                .orElseThrow(() -> new RelacaoEntreUnidadeECondominioNaoEncontradaException(idUnidade, idCondominio));
+
+        Unidade unidadeAntiga = unidadeRepo.findById(idUnidade)
+                .orElseThrow(() -> new UnidadeNaoEncontradaException(idUnidade));
+
+        unidadeAntiga.setTitulo(novosDados.getTitulo());
+        unidadeAntiga.setEndereco(novosDados.getEndereco());
+        unidadeAntiga.setDescricao(novosDados.getDescricao());
+
+        return unidadeRepo.saveAndFlush(unidadeAntiga);
+    }
+
+    public void excluirUnidade(long idCondominio, long idUnidade)
+    {
+        CondominioUnidade condominioUnidade = condominioUnidadeRepo
+                .buscarUnidadeDeUmCondominio(idCondominio, idUnidade)
+                .orElseThrow(() -> new RelacaoEntreUnidadeECondominioNaoEncontradaException(idUnidade, idCondominio));
+
+        Unidade unidade = unidadeRepo.findById(idUnidade)
+                .orElseThrow(() -> new UnidadeNaoEncontradaException(idUnidade));
+
+        condominioUnidadeRepo.delete(condominioUnidade);
+        unidadeRepo.delete(unidade);
+    }
 }

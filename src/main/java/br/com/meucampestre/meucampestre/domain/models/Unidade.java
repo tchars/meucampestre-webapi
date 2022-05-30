@@ -18,8 +18,14 @@ public class Unidade
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @Column(nullable = false)
     private String titulo;
+
+    @Column(nullable = true)
     private String endereco;
+
+    @Column(nullable = true)
     private String descricao;
 
     @Column(columnDefinition="TIMESTAMP DEFAULT CURRENT_TIMESTAMP")

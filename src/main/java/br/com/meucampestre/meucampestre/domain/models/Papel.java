@@ -16,6 +16,8 @@ public class Papel
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @Column(nullable = false)
     private String nome;
 
     @Column(columnDefinition="TIMESTAMP DEFAULT CURRENT_TIMESTAMP")

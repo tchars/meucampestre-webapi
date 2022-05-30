@@ -75,6 +75,25 @@ public class BackOfficeController {
         return ResponseEntity.ok().body(backOfficeServiceV2.salvarUnidade(idCondominio, request));
     }
 
+    @PutMapping("/condominios/{idCondominio}/unidades/{idUnidade}")
+    public ResponseEntity<Unidade> atualizarDadosUnidade(@PathVariable long idCondominio,
+                                                         @PathVariable long idUnidade,
+                                                         @RequestBody Unidade unidade)
+    {
+        return ResponseEntity.ok().body(backOfficeServiceV2
+                .atualizarDadosUnidade(idCondominio, idUnidade, unidade)
+        );
+    }
+
+    @DeleteMapping("/condominios/{idCondominio}/unidades/{idUnidade}")
+    public ResponseEntity<?> excluirUnidade(@PathVariable long idCondominio,
+                                            @PathVariable long idUnidade)
+    {
+        backOfficeServiceV2.excluirUnidade(idCondominio, idUnidade);
+
+        return ResponseEntity.ok().build();
+    }
+
     // ----------------------------
     // CONTEXTO: USUÁRIO
     // ----------------------------
