@@ -184,7 +184,7 @@ public class BackOfficeServiceV2 {
 
         usuarioAntigo.setNome(novosDados.getNome());
         usuarioAntigo.setEmail(novosDados.getEmail());
-        usuarioAntigo.setSenha(novosDados.getSenha());
+        usuarioAntigo.setSenha(encoder.encode(novosDados.getSenha()));
         usuarioAntigo.setDocumento(novosDados.getDocumento());
         usuarioAntigo.setTelefone(novosDados.getTelefone());
         usuarioAntigo.setImagemUrl(novosDados.getImagemUrl());
