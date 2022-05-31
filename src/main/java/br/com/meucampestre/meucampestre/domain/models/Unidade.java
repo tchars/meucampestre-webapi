@@ -1,5 +1,6 @@
 package br.com.meucampestre.meucampestre.domain.models;
 
+import br.com.meucampestre.meucampestre.v2.domain.models.partials.UsuarioUnidadePartial;
 import lombok.*;
 
 import javax.persistence.*;
@@ -39,5 +40,5 @@ public class Unidade
     private Date atualizadoEm;
 
     @Transient
-    private Collection<Usuario> usuarios = new ArrayList<>();
+    private Collection<UsuarioUnidadePartial> usuarios = new ArrayList<>();
 }

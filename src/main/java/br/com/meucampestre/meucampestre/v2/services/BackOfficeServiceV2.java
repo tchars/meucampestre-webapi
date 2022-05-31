@@ -5,6 +5,8 @@ import br.com.meucampestre.meucampestre.domain.models.*;
 import br.com.meucampestre.meucampestre.repositories.*;
 import br.com.meucampestre.meucampestre.v2.domain.exceptions.*;
 import br.com.meucampestre.meucampestre.v2.domain.models.partials.UsuarioPapelCondominioPartial;
+import br.com.meucampestre.meucampestre.v2.domain.models.partials.UsuarioUnidadePartial;
+import br.com.meucampestre.meucampestre.v2.domain.models.partials.UsuariosDoCondominioPartial;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -146,6 +148,32 @@ public class BackOfficeServiceV2 {
     // ------------------
     public List<Usuario> buscarTodoUsuarios() {
         return usuarioRepo.findAll();
+    }
+
+    public List<UsuariosDoCondominioPartial> buscarTodosUsuariosDeUmCondominio(long idCondominio)
+    {
+        condominioRepo
+                .buscarPeloId(idCondominio)
+                .orElseThrow(() -> new CondominioNaoEncontradoException(idCondominio));
+
+        List<UsuarioPapelCondominio> usuariosCondominio =
+                usuarioPapelCondominioRepo.buscarTodosUsuariosDeUmCondominioAgrupados(idCondominio)
+                        .get();
+
+        List<UsuariosDoCondominioPartial> usuarioList = new ArrayList<>();
+        for (UsuarioPapelCondominio usr : usuariosCondominio) {
+
+            UsuariosDoCondominioPartial ss = new UsuariosDoCondominioPartial();
+
+            ss.setId(usr.getUsuario().getId());
+            ss.setNome(usr.getUsuario().getNome());
+            ss.setDocumento(usr.getUsuario().getDocumento());
+            ss.setImagemUrl(usr.getUsuario().getImagemUrl());
+
+            usuarioList.add(ss);
+        }
+
+        return usuarioList;
     }
 
     public Usuario buscarUsuarioPeloDocumento(String documento) {
@@ -296,6 +324,11 @@ public class BackOfficeServiceV2 {
         List<Unidade> unidades = new ArrayList<>();
 
         for (CondominioUnidade unidade : unidadesLink) {
+
+            unidade
+                    .getUnidade()
+                    .setUsuarios(gerarListaDeUsuariosDaUnidade(unidade.getUnidade().getId()));
+
             unidades.add(unidade.getUnidade());
         }
 
@@ -319,7 +352,59 @@ public class BackOfficeServiceV2 {
             throw new UnidadeNaoEncontradaException(idUnidade);
         }
 
-        return unidadeRepo.getById(condominioUnidade.get().getUnidade().getId());
+        Unidade unn = unidadeRepo.getById(condominioUnidade.get().getUnidade().getId());
+
+        List<UsuarioUnidadePartial> partialList = gerarListaDeUsuariosDaUnidade(idUnidade);
+
+        unn.setUsuarios(partialList);
+
+        return unn;
+    }
+
+    private List<UsuarioUnidadePartial> gerarListaDeUsuariosDaUnidade(long idUnidade)
+    {
+        List<UnidadeUsuario> unsList = unidadeUsuarioRepo.buscarTodosUsuariosDeUmaUnidade(idUnidade)
+                .get();
+
+        List<UsuarioUnidadePartial> partialList = new ArrayList<>();
+
+        for (UnidadeUsuario uns : unsList) {
+
+            UsuarioUnidadePartial partial = new UsuarioUnidadePartial();
+
+            partial.setId(uns.getUsuario().getId());
+            partial.setNome(uns.getUsuario().getNome());
+            partial.setDocumento(uns.getUsuario().getDocumento());
+
+            partialList.add(partial);
+        }
+
+        return partialList;
+    }
+
+    public UnidadeUsuario adicionarUsuarioAUnidade(long idCondominio,
+                                                   long idUnidade,
+                                                   String documentoUsuario)
+    {
+        condominioUnidadeRepo
+                .buscarUnidadeDeUmCondominio(idCondominio, idUnidade)
+                .orElseThrow(() -> new RelacaoEntreUnidadeECondominioNaoEncontradaException(idUnidade, idCondominio));
+
+        Usuario usr = usuarioRepo
+                .findByDocumento(documentoUsuario)
+                .orElseThrow(() -> new UsuarioNaoEncontradoException(documentoUsuario));
+
+        Optional<UnidadeUsuario> udu = unidadeUsuarioRepo
+                .buscarPorUnidadeUsuario(idUnidade, usr.getId());
+
+        if (udu.isPresent())
+        {
+            throw new RelacaoEntreUnidadeEUsuarioJaExisteException(usr.getDocumento(), idUnidade);
+        }
+
+        Unidade unidade = unidadeRepo.getById(idUnidade);
+
+        return unidadeUsuarioRepo.save(new UnidadeUsuario(null, usr, unidade));
     }
 
     public Unidade salvarUnidade(long idCondominio, Unidade unidade)

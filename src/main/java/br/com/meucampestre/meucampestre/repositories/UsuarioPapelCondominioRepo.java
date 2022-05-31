@@ -33,6 +33,10 @@ public interface UsuarioPapelCondominioRepo extends JpaRepository<UsuarioPapelCo
     Collection<UsuarioPapelCondominio> buscarTodosUsuariosDeUmCondominio(Long condominio_id);
 
     @Query(value = "SELECT * FROM usuario_papel_condominio AS upcl " +
+            "WHERE upcl.condominio_id = ?1 GROUP BY upcl.usuario_id", nativeQuery = true)
+    Optional<List<UsuarioPapelCondominio>> buscarTodosUsuariosDeUmCondominioAgrupados(Long condominio_id);
+
+    @Query(value = "SELECT * FROM usuario_papel_condominio AS upcl " +
             "WHERE upcl.usuario_id = ?1", nativeQuery = true)
     Collection<UsuarioPapelCondominio> buscarPorUsuario(Long usuario_id);
 

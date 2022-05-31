@@ -3,8 +3,11 @@ package br.com.meucampestre.meucampestre.v2.controllers;
 import br.com.meucampestre.meucampestre.domain.constants.Rotas;
 import br.com.meucampestre.meucampestre.domain.models.Condominio;
 import br.com.meucampestre.meucampestre.domain.models.Unidade;
+import br.com.meucampestre.meucampestre.domain.models.UnidadeUsuario;
 import br.com.meucampestre.meucampestre.domain.models.Usuario;
 import br.com.meucampestre.meucampestre.v2.apiModels.requests.AdicionarPapelAoUsuarioRequest;
+import br.com.meucampestre.meucampestre.v2.apiModels.requests.AdicionarUsuarioAUnidadeRequest;
+import br.com.meucampestre.meucampestre.v2.domain.models.partials.UsuariosDoCondominioPartial;
 import br.com.meucampestre.meucampestre.v2.services.BackOfficeServiceV2;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -68,11 +71,29 @@ public class BackOfficeController {
         return ResponseEntity.ok().body(backOfficeServiceV2.buscarUnidadeDeUmCondominio(idCondominio, idUnidade));
     }
 
+    @GetMapping("/condominios/{idCondominio}/usuarios")
+    public ResponseEntity<List<UsuariosDoCondominioPartial>> buscarTodosUsuariosDeUmCondominio(@PathVariable long idCondominio)
+    {
+        return ResponseEntity.ok().body(backOfficeServiceV2.buscarTodosUsuariosDeUmCondominio(idCondominio));
+    }
+
     @PostMapping("/condominios/{idCondominio}/unidades")
     public ResponseEntity<Unidade> salvarUnidadeAoCondominio(@PathVariable long idCondominio,
                                                              @RequestBody Unidade request)
     {
         return ResponseEntity.ok().body(backOfficeServiceV2.salvarUnidade(idCondominio, request));
+    }
+
+    @PostMapping("/condominios/{idCondominio}/unidades/{idUnidade}/usuarios")
+    public ResponseEntity<UnidadeUsuario> adicionarUsuarioAUnidade(@PathVariable long idCondominio,
+                                                                   @PathVariable long idUnidade,
+                                                                   @RequestBody
+                                                                               AdicionarUsuarioAUnidadeRequest documento)
+    {
+        return ResponseEntity
+                .ok()
+                .body(backOfficeServiceV2
+                        .adicionarUsuarioAUnidade(idCondominio, idUnidade, documento.getDocumento()));
     }
 
     @PutMapping("/condominios/{idCondominio}/unidades/{idUnidade}")
@@ -93,6 +114,7 @@ public class BackOfficeController {
 
         return ResponseEntity.ok().build();
     }
+
 
     // ----------------------------
     // CONTEXTO: USUÁRIO
