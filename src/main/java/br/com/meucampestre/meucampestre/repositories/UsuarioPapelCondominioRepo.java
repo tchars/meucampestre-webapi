@@ -44,6 +44,10 @@ public interface UsuarioPapelCondominioRepo extends JpaRepository<UsuarioPapelCo
             "WHERE upcl.usuario_id = ?1 GROUP BY upcl.condominio_id", nativeQuery = true)
     Collection<UsuarioPapelCondominio> buscarPorUsuarioAgrupado(Long usuario_id);
 
+    @Query(value = "SELECT * FROM usuario_papel_condominio AS upcl " +
+            "WHERE upcl.usuario_id = ?1", nativeQuery = true)
+    Collection<UsuarioPapelCondominio> buscarTodasRolesPorUsuario(Long usuario_id);
+
     @Modifying
     @Query(value = "DELETE FROM `usuario_papel_condominio` WHERE usuario_id = ?1 AND condominio_id = ?2", nativeQuery = true)
     @Transactional

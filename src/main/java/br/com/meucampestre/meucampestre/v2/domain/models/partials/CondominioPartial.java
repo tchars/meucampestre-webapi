@@ -5,6 +5,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.List;
+
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
@@ -14,4 +16,5 @@ public class CondominioPartial
     private long id;
     private String nome;
     private String imagemUrl;
+    //TODO: private List<String> roles;
 }
