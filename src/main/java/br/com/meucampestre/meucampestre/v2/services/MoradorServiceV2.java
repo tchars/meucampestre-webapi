@@ -25,6 +25,7 @@ public class MoradorServiceV2 {
     private final PasswordEncoder passwordEncoder;
     private final UnidadeRepo unidadeRepo;
     private final UnidadeUsuarioRepo unidadeUsuarioRepo;
+    private final CondominioUnidadeRepo condominioUnidadeRepo;
 
     public ArrayList<MoradorDoCondominio> buscarTodosUsuariosDeUmCondominio(long idCondominio) {
         // TODO: Descobrir quem esta solicitando, se for tipo SINDICO ele deve ver todos,
@@ -38,7 +39,7 @@ public class MoradorServiceV2 {
         for (UsuarioPapelCondominio usr : usuariosPapelCondominio)
         {
             Usuario usuario = usr.getUsuario();
-            if(usuario.getAtivo()){
+            if (usuario.getAtivo()) {
                 ArrayList<String> papeis = new ArrayList<>();
                 papeis.add(usr.getPapel().getNome());
 
@@ -51,7 +52,7 @@ public class MoradorServiceV2 {
                     }
                 }
 
-                if(!added){
+                if (!added) {
                     MoradorDoCondominio moradorDoCondominio = new MoradorDoCondominio(usuario);
                     moradorDoCondominio.setTipoDePerfil(papeis);
                     moradoresDoCondominio.add(moradorDoCondominio);
@@ -59,6 +60,7 @@ public class MoradorServiceV2 {
 
             }
         }
+
         return moradoresDoCondominio;
     }
 
@@ -98,7 +100,8 @@ public class MoradorServiceV2 {
     }
 
     //TODO: Esse metodo tbm irá precisar trazer as uniades do usuário
-    public Usuario buscarUmUsuarioEmUmCondominio(long idCondominio, String documento) {
+    public Usuario buscarUmUsuarioEmUmCondominio(long idCondominio, String documento)
+    {
         Usuario usuario = buscarUsuarioPeloDocumento(documento);
 
         Usuario usuarioPapeis = buscarPapeisDoUsuario(usuario.getId(), idCondominio);
@@ -106,6 +109,7 @@ public class MoradorServiceV2 {
         if (usuarioPapeis.getPapeis().size() > 0) {
             return usuarioPapeis;
         }
+
         throw new UsuarioNaoCadastradoNoCondominioException(usuario.getDocumento());
     }
 
@@ -133,9 +137,10 @@ public class MoradorServiceV2 {
         // Como o retorno do editar não é usado no front, por enquanto está setando o papeis como lista vazia apenas para evitar de demonstrar os papeis antes do update
         usuario.setPapeis(new ArrayList<>());
 
-        if(request.getUnidades() != null) {
-            //TODO: Precisa atualizar as unidades do usuario conforme as unidades recebidas no request
+        if (request.getUnidades() != null) {
+            atualizarUnidadesDoUsuario(request.getUnidades(), condominio, usuario);
         }
+
         return usuario;
     }
 
@@ -195,8 +200,8 @@ public class MoradorServiceV2 {
                 .orElseThrow(() -> new CondominioNaoEncontradoException(idCondominio));
 
         List<UsuarioPapelCondominio> usuarioPapeisCondominio =
-                usuarioPapelCondominioRepo.buscarPapeisPorUsuarioECondominio(u.getId(),
-                                c.getId())
+                usuarioPapelCondominioRepo
+                        .buscarPapeisPorUsuarioECondominio(u.getId(), c.getId())
                         .get();
 
         for (UsuarioPapelCondominio link : usuarioPapeisCondominio)
@@ -213,5 +218,30 @@ public class MoradorServiceV2 {
                 .orElseThrow(() -> new UnidadeNaoEncontradaException(idUnidade));
 
         unidadeUsuarioRepo.save(new UnidadeUsuario(null, usuario, unidade));
+    }
+
+    private void atualizarUnidadesDoUsuario(List<Long> unidades, Condominio condominio, Usuario usuario) {
+
+        List<CondominioUnidade> cd = condominioUnidadeRepo
+                    .buscarTodasUnidadesDeUmCondominioPeloId(condominio.getId())
+                    .get();
+
+        // Apago todas as unidades que ele faz parte e que ele n faz parte, mas são do condomínio
+        for (CondominioUnidade cdu : cd)
+        {
+            unidadeUsuarioRepo.removerUnidadeDeUmUsuario(cdu.getUnidade().getId(), usuario.getId());
+        }
+
+        // Insiro as específicas
+        for (CondominioUnidade cdu : cd)
+        {
+            for (Long unidadeId : unidades)
+            {
+                if (cdu.getUnidade().getId().equals(unidadeId))
+                {
+                    unidadeUsuarioRepo.save(new UnidadeUsuario(null, usuario, cdu.getUnidade()));
+                }
+            }
+        }
     }
 }
