@@ -22,7 +22,7 @@ public class MinhaContaController {
     private final MinhaContaServiceV2 minhaContaService;
 
     @GetMapping
-    public ResponseEntity<MinhaConta> buscarTodoUsuarios()
+    public ResponseEntity<MinhaConta> buscarMeusDados()
     {
         String usuarioDoToken = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
@@ -30,7 +30,7 @@ public class MinhaContaController {
     }
 
     @PutMapping()
-    public ResponseEntity<?> atualizarCondominio(@RequestBody AtualizarMeusDadosDaContaRequest request)
+    public ResponseEntity<?> atualizarMeusDados(@RequestBody AtualizarMeusDadosDaContaRequest request)
     {
         String usuarioDoToken = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 

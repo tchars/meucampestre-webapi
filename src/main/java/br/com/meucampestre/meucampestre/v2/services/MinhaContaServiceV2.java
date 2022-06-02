@@ -77,13 +77,31 @@ public class MinhaContaServiceV2 {
         Usuario usr = usuarioRepo.findByDocumento(usuarioDoToken)
                 .orElseThrow(() -> new UsuarioNaoEncontradoException(usuarioDoToken));
 
-        usr.setNome(request.getNome());
-        usr.setEmail(request.getEmail());
-        usr.setSenha(encoder.encode(request.getSenha()));
-        usr.setTelefone(request.getTelefone());
-        usr.setImagemUrl(request.getImagemUrl());
+        if (request.getNome() != null) {
+            usr.setNome(request.getNome());
+        }
 
-        return usr;
+        if (request.getEmail() != null) {
+            usr.setEmail(request.getEmail());
+        }
+
+        if (request.getTelefone() != null) {
+            usr.setTelefone(request.getTelefone());
+        }
+
+        if (request.getImagemUrl() != null) {
+            usr.setImagemUrl(request.getImagemUrl());
+        }
+
+        if (request.getNome() != null) {
+            usr.setNome(request.getNome());
+        }
+
+        if (request.getSenha() != null) {
+            usr.setSenha(request.getSenha());
+        }
+
+        return usuarioRepo.save(usr);
     }
 
     public List<Papel> buscarRolesAPartirDoCondominio(String usuarioDoToken, long idCondominio) {
