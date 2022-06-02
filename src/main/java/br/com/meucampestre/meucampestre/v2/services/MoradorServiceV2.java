@@ -1,16 +1,9 @@
 package br.com.meucampestre.meucampestre.v2.services;
 
-import br.com.meucampestre.meucampestre.apimodels.condominio.BuscarTodosUsuariosDeUmCondominioResponse;
 import br.com.meucampestre.meucampestre.apimodels.condominio.partials.MoradorDoCondominio;
 import br.com.meucampestre.meucampestre.apimodels.usuarios.CriarUsuarioRequestV2;
-import br.com.meucampestre.meucampestre.domain.models.Condominio;
-import br.com.meucampestre.meucampestre.domain.models.Papel;
-import br.com.meucampestre.meucampestre.domain.models.Usuario;
-import br.com.meucampestre.meucampestre.domain.models.UsuarioPapelCondominio;
-import br.com.meucampestre.meucampestre.repositories.CondominioRepo;
-import br.com.meucampestre.meucampestre.repositories.PapelRepo;
-import br.com.meucampestre.meucampestre.repositories.UsuarioPapelCondominioRepo;
-import br.com.meucampestre.meucampestre.repositories.UsuarioRepo;
+import br.com.meucampestre.meucampestre.domain.models.*;
+import br.com.meucampestre.meucampestre.repositories.*;
 import br.com.meucampestre.meucampestre.v2.domain.exceptions.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -29,10 +22,13 @@ public class MoradorServiceV2 {
     private final CondominioRepo condominioRepo;
     private final PapelRepo papelRepo;
     private final UsuarioPapelCondominioRepo usuarioPapelCondominioRepo;
-    private final PasswordEncoder encoder;
+    private final PasswordEncoder passwordEncoder;
+    private final UnidadeRepo unidadeRepo;
+    private final UnidadeUsuarioRepo unidadeUsuarioRepo;
 
     public ArrayList<MoradorDoCondominio> buscarTodosUsuariosDeUmCondominio(long idCondominio) {
-        // TODO: Descobrir quem esta solicitando, se for tipo SINDICO ele deve ver todos, se for MORADOR/CONSELHEIRO ele deve ver apenas os que moram na sua
+        // TODO: Descobrir quem esta solicitando, se for tipo SINDICO ele deve ver todos,
+        //  se for MORADOR/CONSELHEIRO ele deve ver apenas os que moram na sua
 
         Collection<UsuarioPapelCondominio> usuariosPapelCondominio =
                 _usuarioPapelCondominioRepo.buscarTodosUsuariosDeUmCondominio(idCondominio);
@@ -72,24 +68,32 @@ public class MoradorServiceV2 {
         novoUsuario.setNome(request.getNome());
         novoUsuario.setEmail(request.getEmail());
         novoUsuario.setDocumento(request.getDocumento());
-        novoUsuario.setSenha(request.getSenha());
+        novoUsuario.setSenha(passwordEncoder.encode(request.getSenha()));
         novoUsuario.setTelefone(request.getTelefone());
         novoUsuario.setAtivo(true);
 
         Usuario usuario = salvarUsuario(novoUsuario);
 
-        Condominio condominio = condominioRepo.findById(idCondominio)
+        Condominio condominio = condominioRepo
+                .findById(idCondominio)
                 .orElseThrow(() -> new CondominioNaoEncontradoException(idCondominio));
 
-        if(request.getPapeis() != null) {
-            for (String papel : request.getPapeis()) {
+        if (request.getPapeis() != null)
+        {
+            for (String papel : request.getPapeis())
+            {
                 adicionarPapelAoUsuario(usuario, papel, condominio);
             }
         }
 
-        if(request.getUnidades() != null) {
-            //TODO: Repetir o processo dos papeis acima, para as unidades
+        if (request.getUnidades() != null)
+        {
+            for (Long unidadeId : request.getUnidades())
+            {
+                adicionarUsuarioAUnidade(unidadeId, usuario);
+            }
         }
+
         return usuario;
     }
 
@@ -151,13 +155,12 @@ public class MoradorServiceV2 {
             throw new UsuarioJaCadastradoException(novoUsuario.getDocumento());
         }
 
-        novoUsuario.setSenha(encoder.encode(novoUsuario.getSenha()));
+        novoUsuario.setSenha(passwordEncoder.encode(novoUsuario.getSenha()));
 
         return usuarioRepo.save(novoUsuario);
     }
 
-    private void adicionarPapelAoUsuario(Usuario u, String nomePapel,
-                                        Condominio c)
+    private void adicionarPapelAoUsuario(Usuario u, String nomePapel, Condominio c)
     {
 
         Papel p = papelRepo.getByNome(nomePapel)
@@ -202,5 +205,13 @@ public class MoradorServiceV2 {
         }
 
         return u;
+    }
+
+    private void adicionarUsuarioAUnidade(long idUnidade, Usuario usuario) {
+
+        Unidade unidade = unidadeRepo.findById(idUnidade)
+                .orElseThrow(() -> new UnidadeNaoEncontradaException(idUnidade));
+
+        unidadeUsuarioRepo.save(new UnidadeUsuario(null, usuario, unidade));
     }
 }

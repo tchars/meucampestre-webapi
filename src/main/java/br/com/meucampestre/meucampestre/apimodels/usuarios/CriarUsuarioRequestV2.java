@@ -19,5 +19,5 @@ public class CriarUsuarioRequestV2
     private String documento;
     private String telefone;
     private List<String> papeis;
-    private List<String> unidades;
+    private List<Long> unidades;
 }
